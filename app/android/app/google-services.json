@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "38395896470",
+    "firebase_url": "https://fir-databse-cc52d-default-rtdb.firebaseio.com",
+    "project_id": "fir-databse-cc52d",
+    "storage_bucket": "fir-databse-cc52d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:38395896470:android:409602dd12522cd15918b7",
+        "android_client_info": {
+          "package_name": "com.example.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyATbg_htXJpnTp7b99tght3Rz4sllVQ0Xg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:38395896470:android:b68e2e16fa7edb9b5918b7",
+        "android_client_info": {
+          "package_name": "com.example.firestoredb"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyATbg_htXJpnTp7b99tght3Rz4sllVQ0Xg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:38395896470:android:77464d85dcd977735918b7",
+        "android_client_info": {
+          "package_name": "com.example.imagesstoring"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyATbg_htXJpnTp7b99tght3Rz4sllVQ0Xg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
