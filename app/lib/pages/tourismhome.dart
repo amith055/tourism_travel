@@ -1,5 +1,5 @@
 import 'package:app/pages/ApiFunctions/functions.dart';
-import 'package:app/pages/components/add_tourism.dart';
+import 'package:app/pages/components/add_place_form.dart';
 import 'package:app/pages/components/all_places.dart';
 import 'package:app/pages/components/mapscreen.dart';
 import 'package:flutter/material.dart';
@@ -404,39 +404,6 @@ class _BannerWithCarouselPageState extends State<TourismHome>
         child: Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder:
-                        (context) => AddTourismPlacePage(email: widget.email),
-                  ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black, // Background color of the button
-                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(24),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.add_location, size: 23, color: Colors.white),
-                  SizedBox(width: 10),
-                  Text(
-                    'Add Places',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
             SizedBox(width: 60),
             FloatingActionButton(
               onPressed: () {
@@ -447,7 +414,7 @@ class _BannerWithCarouselPageState extends State<TourismHome>
                   ),
                 );
               },
-              backgroundColor: const Color.fromARGB(255, 0, 0, 0),
+              backgroundColor: const Color.fromARGB(255, 36, 36, 36),
               child: Icon(Icons.location_on, color: Colors.white, size: 30),
             ),
           ],

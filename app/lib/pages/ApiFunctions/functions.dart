@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -53,6 +54,48 @@ Widget imageloader(imageurl) {
           child: Container(width: 120, height: 180, color: Colors.grey[900]),
         );
       },
+    ),
+  );
+}
+
+Future<void> updateContributorStatus(context, String email) async {
+  try {
+    // Reference to Firestore
+    final FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+    // Query for the user with the given email
+    final QuerySnapshot userSnapshot =
+        await firestore
+            .collection('users')
+            .where('email', isEqualTo: email)
+            .limit(1)
+            .get();
+
+    if (userSnapshot.docs.isNotEmpty) {
+      // Get the document ID
+      final String docId = userSnapshot.docs.first.id;
+
+      // Update the fields
+      await firestore.collection('users').doc(docId).update({
+        'is_contributor': true,
+        'credits': 0,
+        'count': 0,
+      });
+      showSnackBar(context, "You are now a contributor!");
+    } else {
+      showSnackBar(context, "Error");
+    }
+  } catch (e) {
+    showSnackBar(context, "An error occurred: $e");
+  }
+}
+
+void showSnackBar(BuildContext context, String message) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(message, style: const TextStyle(color: Colors.black)),
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+      behavior: SnackBarBehavior.floating,
     ),
   );
 }

@@ -4,16 +4,16 @@ import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'selectmapscreen.dart';
 
-class AddTourismPlacePage extends StatefulWidget {
+class AddPlaceForm extends StatefulWidget {
   final dynamic email;
 
-  const AddTourismPlacePage({super.key, required this.email});
+  const AddPlaceForm({super.key, required this.email});
 
   @override
-  State<AddTourismPlacePage> createState() => _AddTourismPlacePageState();
+  State<AddPlaceForm> createState() => _AddPlaceFormState();
 }
 
-class _AddTourismPlacePageState extends State<AddTourismPlacePage> {
+class _AddPlaceFormState extends State<AddPlaceForm> {
   final _formKey = GlobalKey<FormState>();
 
   final TextEditingController placeNameController = TextEditingController();
@@ -25,7 +25,9 @@ class _AddTourismPlacePageState extends State<AddTourismPlacePage> {
   final TextEditingController descriptionController = TextEditingController();
 
   String? selectedZone;
+  String? selectedType;
   String? selectedTourismType;
+  String? selectedCultureType;
   String? selectedBestSeason;
   LatLng? selectedCoordinates;
 
@@ -37,6 +39,17 @@ class _AddTourismPlacePageState extends State<AddTourismPlacePage> {
     'Wildlife',
     'Other',
   ];
+
+  final List<String> types = ['Cultural Event', 'Tourist Places'];
+
+  final List<String> cultureTypes = [
+    'Cultural Event',
+    'Religious Festival',
+    'Festival',
+    'Food Festival',
+    'Music Festival',
+    'Tribal Festival',
+  ];
   final List<String> bestSeasons = ['Summer', 'Winter', 'Monsoon', 'Spring'];
 
   @override
@@ -44,7 +57,7 @@ class _AddTourismPlacePageState extends State<AddTourismPlacePage> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text("Add Tourism Place"),
+        title: const Text("Add a Place or Event"),
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
       ),
@@ -54,6 +67,12 @@ class _AddTourismPlacePageState extends State<AddTourismPlacePage> {
           key: _formKey,
           child: Column(
             children: [
+              _buildDropdown(
+                label: "Type",
+                value: selectedType,
+                items: types,
+                onChanged: (value) => setState(() => selectedType = value),
+              ),
               _buildTextField("Tourism Place Name", placeNameController),
               _buildTextField("Town", townController),
               _buildTextField("City", cityController),
