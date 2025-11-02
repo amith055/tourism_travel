@@ -67,7 +67,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ? Center(child: CircularProgressIndicator())
               : Column(
                 children: [
-                  // Profile Info
                   Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(

@@ -5,7 +5,6 @@ import 'package:app/pages/components/destails.dart';
 
 class AllinOne extends StatefulWidget {
   final bool button;
-
   final dynamic type;
 
   const AllinOne({super.key, required this.button, required this.type});
