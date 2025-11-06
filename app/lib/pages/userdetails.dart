@@ -1,56 +1,60 @@
-import 'package:app/pages/contributors_pages/mycontributions.dart';
-import 'package:flutter/material.dart';
 import 'dart:io';
+import 'package:app/pages/myspace/about.dart';
+import 'package:app/pages/myspace/changepass.dart';
+import 'package:app/pages/myspace/chatpage.dart';
+import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:app/pages/myspace/mycontributions.dart';
+import 'package:app/pages/myspace/myprofile.dart';
 import 'ApiFunctions/functions.dart';
 
 class ProfileScreen extends StatefulWidget {
   final VoidCallback onLogout;
-
-  final dynamic email; // Add this
+  final dynamic email;
 
   const ProfileScreen({super.key, required this.onLogout, required this.email});
+
   @override
-  _ProfileScreenState createState() => _ProfileScreenState();
+  State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
+// global placeholders
 var fname;
 var lname;
 var simpledata;
 
 class _ProfileScreenState extends State<ProfileScreen> {
   File? _profileImage;
+  String? _profileImageUrl; // <-- fetched from Firestore
 
   @override
   void initState() {
     super.initState();
-
-    fetchdetails();
+    fetchDetails();
   }
 
-  Future<void>? fetchdetails() async {
-    QuerySnapshot data =
-        await FirebaseFirestore.instance
-            .collection('users')
-            .where('email', isEqualTo: widget.email)
-            .get();
-    simpledata = data.docs[0];
-    setState(() {
-      fname = simpledata['firstName'];
-      lname = simpledata['lastName'];
-    });
-  }
+  Future<void> fetchDetails() async {
+    try {
+      QuerySnapshot snapshot =
+          await FirebaseFirestore.instance
+              .collection('users')
+              .where('email', isEqualTo: widget.email)
+              .get();
 
-  Future<void> _pickProfileImage() async {
-    final pickedFile = await ImagePicker().pickImage(
-      source: ImageSource.gallery,
-    );
+      if (snapshot.docs.isNotEmpty) {
+        simpledata = snapshot.docs.first;
 
-    if (pickedFile != null) {
-      setState(() {
-        _profileImage = File(pickedFile.path);
-      });
+        setState(() {
+          fname = simpledata['firstName'];
+          lname = simpledata['lastName'];
+          if (simpledata['profileImage'] != null) {
+            _profileImageUrl = simpledata['profileImage'];
+          }
+        });
+      }
+    } catch (e) {
+      print("Error fetching user details: $e");
     }
   }
 
@@ -61,12 +65,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
       appBar: AppBar(
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
+        title: const Text("Profile", style: TextStyle(color: Colors.white)),
+        centerTitle: true,
       ),
       body:
           simpledata == null
-              ? Center(child: CircularProgressIndicator())
+              ? const Center(child: CircularProgressIndicator())
               : Column(
                 children: [
+                  // Profile section
                   Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
@@ -75,43 +82,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           alignment: Alignment.bottomRight,
                           children: [
                             CircleAvatar(
-                              radius: 50,
+                              radius: 55,
                               backgroundColor: Colors.grey[800],
                               backgroundImage:
                                   _profileImage != null
                                       ? FileImage(_profileImage!)
+                                      : (_profileImageUrl != null &&
+                                          _profileImageUrl!.isNotEmpty)
+                                      ? NetworkImage(_profileImageUrl!)
                                       : null,
                               child:
-                                  _profileImage == null
-                                      ? Icon(
+                                  (_profileImage == null &&
+                                          (_profileImageUrl == null ||
+                                              _profileImageUrl!.isEmpty))
+                                      ? const Icon(
                                         Icons.person,
-                                        size: 50,
+                                        size: 55,
                                         color: Colors.white,
                                       )
                                       : null,
                             ),
-                            Positioned(
-                              bottom: 0,
-                              right: 4,
-                              child: GestureDetector(
-                                onTap: _pickProfileImage,
-                                child: CircleAvatar(
-                                  radius: 16,
-                                  backgroundColor: Colors.blue,
-                                  child: Icon(
-                                    Icons.edit,
-                                    size: 16,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                            ),
                           ],
                         ),
-                        SizedBox(height: 12),
+                        const SizedBox(height: 12),
                         Text(
                           "$fname $lname",
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
@@ -119,24 +115,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         Text(
                           widget.email,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 15,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: Colors.white70,
                           ),
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 8),
                       ],
                     ),
                   ),
-                  Divider(color: Colors.grey),
 
-                  // Menu List
+                  const Divider(color: Colors.white24),
+
+                  // Menu section
                   Expanded(
                     child: ListView(
                       children: [
                         simpledata['is_contributor']
-                            ? buildListTile("My Contributions", () {
+                            ? buildListTile("My Contributions", Icons.star, () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -146,30 +142,67 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       ),
                                 ),
                               );
-                            }, Icons.star)
-                            : buildListTile("Become a Contributor", () {
-                              showPopupMenu(context, () {
-                                setState(() {
-                                  fetchdetails();
+                            })
+                            : buildListTile(
+                              "Become a Contributor",
+                              Icons.star,
+                              () {
+                                showPopupMenu(context, () {
+                                  setState(() {
+                                    fetchDetails();
+                                  });
                                 });
-                              });
-                            }, Icons.star),
-                        buildListTile("Edit Profile", () {}, Icons.edit),
-                        buildListTile("My Trips", () {}, Icons.card_travel),
-                        buildListTile("Favorites", () {}, Icons.favorite),
-                        buildListTile("Change Password", () {}, Icons.lock),
-                        buildListTile("Settings", () {}, Icons.settings),
-                        buildListTile("About", () {}, Icons.info),
-                        buildListTile(
-                          "Help & Legal",
-                          () {},
-                          Icons.help_outline,
-                        ),
+                              },
+                            ),
+
+                        buildListTile("Edit Profile", Icons.edit, () async {
+                          // Example inside ProfileScreen
+                          final shouldReload = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder:
+                                  (context) =>
+                                      MyProfilePage(email: widget.email),
+                            ),
+                          );
+
+                          // ✅ If user saved changes, reload data
+                          if (shouldReload == true) {
+                            fetchDetails(); // or setState(() => load data again)
+                          }
+                        }),
+                        buildListTile("My Trips", Icons.card_travel, () {}),
+                        buildListTile("Favorites", Icons.favorite, () {}),
+                        buildListTile("Change Password", Icons.lock, () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ChangePasswordPage(),
+                            ),
+                          );
+                        }),
+                        buildListTile("Settings", Icons.settings, () {}),
+                        buildListTile("About", Icons.info, () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => AboutPage(),
+                            ),
+                          );
+                        }),
+                        buildListTile("AI Assistant", Icons.chat, () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Ai_assistant(),
+                            ),
+                          );
+                        }),
                         buildListTile(
                           "Logout",
-                          widget.onLogout,
                           Icons.logout,
-                          color: Colors.red,
+                          widget.onLogout,
+                          color: Colors.redAccent,
                         ),
                       ],
                     ),
@@ -181,19 +214,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget buildListTile(
     String title,
-    func,
-    IconData icon, {
+    IconData icon,
+    VoidCallback onTap, {
     Color color = Colors.white,
   }) {
     return ListTile(
       leading: Icon(icon, color: color),
       title: Text(title, style: TextStyle(color: color)),
-      trailing: Icon(Icons.arrow_forward_ios, size: 16, color: color),
-      onTap: func,
+      trailing: const Icon(
+        Icons.arrow_forward_ios,
+        size: 16,
+        color: Colors.white70,
+      ),
+      onTap: onTap,
     );
   }
 }
 
+/// POPUP FOR CONTRIBUTOR TERMS
 void showPopupMenu(BuildContext context, VoidCallback onRefresh) {
   bool isChecked = false;
   final ScrollController scrollController = ScrollController();
@@ -224,9 +262,9 @@ void showPopupMenu(BuildContext context, VoidCallback onRefresh) {
             backgroundColor: Colors.transparent,
             child: Container(
               padding: const EdgeInsets.all(20),
-              width: 520, // wider popup box
+              width: 520,
               decoration: BoxDecoration(
-                color: const Color(0xFF0D0D0D), // modern solid black background
+                color: const Color(0xFF0D0D0D),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(color: Colors.white24, width: 1.2),
                 boxShadow: [
@@ -247,12 +285,10 @@ void showPopupMenu(BuildContext context, VoidCallback onRefresh) {
                       color: Colors.white,
                       fontSize: 22,
                       fontWeight: FontWeight.w700,
-                      letterSpacing: 0.4,
                     ),
-                    textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 12),
-                  Divider(color: Colors.white.withOpacity(0.2), thickness: 1),
+                  const SizedBox(height: 10),
+                  const Divider(color: Colors.white24),
                   const SizedBox(height: 10),
                   SizedBox(
                     height: 450,
@@ -279,25 +315,24 @@ Your data is collected and stored securely. We do not share personal information
 This app uses location services to display nearby cultural and tourist places. You may disable location access anytime in your device settings.
 
 6. **Verification**
-All submitted places, images, and location data will undergo verification by our team or organization before publishing. Duplicates or copied places will be rejected.
+All submitted places, images, and location data will undergo verification by our team before publishing.
 
 7. **Rewards**
-Rewards are offered upon successful verification of your submissions. The reward type and quantity are determined by the organization and may vary.
+Rewards are offered upon successful verification of your submissions.
 
 8. **Liability Disclaimer**
-LokVisit is not responsible for any inaccuracies or losses arising from user-submitted data or third-party integrations.
+LokVisit is not responsible for inaccuracies or losses arising from user-submitted data.
 
 9. **Modifications**
 We may update these terms periodically. Continued use of the app signifies your acceptance of any changes.
 
 10. **Contact**
-For any questions or concerns, please contact us at lokvisit.support@gmail.com.
-
-Thank you for contributing to LokVisit and helping promote culture and tourism responsibly!""",
+For questions, contact: lokvisit.support@gmail.com
+""",
                         style: TextStyle(
-                          color: Color(0xFFD8D8D8),
-                          height: 1.45,
-                          fontSize: 14.5,
+                          color: Colors.white70,
+                          height: 1.5,
+                          fontSize: 14,
                         ),
                         textAlign: TextAlign.justify,
                       ),
@@ -319,7 +354,7 @@ Thank you for contributing to LokVisit and helping promote culture and tourism r
                         ),
                         const Text(
                           "I agree to the Terms & Conditions",
-                          style: TextStyle(color: Colors.white70, fontSize: 14),
+                          style: TextStyle(color: Colors.white70),
                         ),
                       ],
                     )
@@ -328,15 +363,13 @@ Thank you for contributing to LokVisit and helping promote culture and tourism r
                       "Scroll down to read all terms...",
                       style: TextStyle(color: Colors.white38, fontSize: 12),
                     ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(
-                            0xFFFF3B30,
-                          ), // modern red
+                          backgroundColor: const Color(0xFFFF3B30),
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
@@ -345,27 +378,16 @@ Thank you for contributing to LokVisit and helping promote culture and tourism r
                             horizontal: 24,
                             vertical: 12,
                           ),
-                          elevation: 3,
                         ),
-                        onPressed: () {
-                          Navigator.of(context).pop(false);
-                        },
-                        child: const Text(
-                          "Reject",
-                          style: TextStyle(fontWeight: FontWeight.w500),
-                        ),
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: const Text("Reject"),
                       ),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor:
                               isChecked
-                                  ? const Color(0xFF00E676) // neon green
-                                  : const Color.fromARGB(
-                                    255,
-                                    78,
-                                    102,
-                                    75,
-                                  ), // inactive dark gray
+                                  ? const Color(0xFF00E676)
+                                  : const Color(0xFF2F2F2F),
                           foregroundColor:
                               isChecked ? Colors.black : Colors.white54,
                           shape: RoundedRectangleBorder(
@@ -375,7 +397,6 @@ Thank you for contributing to LokVisit and helping promote culture and tourism r
                             horizontal: 30,
                             vertical: 12,
                           ),
-                          elevation: 3,
                         ),
                         onPressed:
                             isChecked
@@ -390,10 +411,7 @@ Thank you for contributing to LokVisit and helping promote culture and tourism r
                                 : null,
                         child: const Text(
                           "Become Contributor",
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 15,
-                          ),
+                          style: TextStyle(fontWeight: FontWeight.w600),
                         ),
                       ),
                     ],

@@ -17,6 +17,9 @@
       "api_key": [
         {
           "current_key": "AIzaSyATbg_htXJpnTp7b99tght3Rz4sllVQ0Xg"
+        },
+        {
+          "current_key": "AIzaSyCNcqsbu9-jqM5Tn65drO1zJjbY96PfbqM"
         }
       ],
       "services": {
@@ -36,6 +39,31 @@
       "api_key": [
         {
           "current_key": "AIzaSyATbg_htXJpnTp7b99tght3Rz4sllVQ0Xg"
+        },
+        {
+          "current_key": "AIzaSyCNcqsbu9-jqM5Tn65drO1zJjbY96PfbqM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:38395896470:android:71e4ef8f60c45de95918b7",
+        "android_client_info": {
+          "package_name": "com.example.flutterapp2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyATbg_htXJpnTp7b99tght3Rz4sllVQ0Xg"
+        },
+        {
+          "current_key": "AIzaSyCNcqsbu9-jqM5Tn65drO1zJjbY96PfbqM"
         }
       ],
       "services": {
@@ -55,6 +83,31 @@
       "api_key": [
         {
           "current_key": "AIzaSyATbg_htXJpnTp7b99tght3Rz4sllVQ0Xg"
+        },
+        {
+          "current_key": "AIzaSyCNcqsbu9-jqM5Tn65drO1zJjbY96PfbqM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:38395896470:android:4fca5e18f27863f55918b7",
+        "android_client_info": {
+          "package_name": "com.example.koha_int"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyATbg_htXJpnTp7b99tght3Rz4sllVQ0Xg"
+        },
+        {
+          "current_key": "AIzaSyCNcqsbu9-jqM5Tn65drO1zJjbY96PfbqM"
         }
       ],
       "services": {

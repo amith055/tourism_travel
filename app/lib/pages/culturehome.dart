@@ -85,14 +85,14 @@ class _CultureHomeState extends State<CultureHome>
     });
   }
 
-  @override
-  void dispose() {
-    for (final controller in _scrollControllers) {
-      controller.dispose();
-    }
-    _searchController.dispose();
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   for (final controller in _scrollControllers) {
+  //     controller.dispose();
+  //   }
+  //   _searchController.dispose();
+  //   super.dispose();
+  // }
 
   @override
   Widget build(BuildContext context) {

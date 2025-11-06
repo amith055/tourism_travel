@@ -45,6 +45,8 @@ dependencies:
   image_picker: ^1.1.2
   shimmer: ^3.0.0
   geocoding: ^3.0.0
+  firebase_storage: ^12.4.10
+  flutter_dotenv: ^6.0.0
    
 
 dev_dependencies:
@@ -73,13 +75,15 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/lokvista.jpg
+    - assets/images/lokvista1.jpg
+    - assets/images/lokvista.png
   #   - images/a_dot_ham.jpeg
 
 flutter_launcher_icons:
   android: "ic_launcher"
   ios: true
   adaptive_icon_background: "#f5e6d0"
-  image_path: assets/images/lokvista.jpg
+  image_path: assets/images/lokvista.png
 
 
   # An image asset can refer to one or more resolution-specific "variants", see
