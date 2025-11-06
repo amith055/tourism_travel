@@ -1,4 +1,7 @@
-import 'package:app/pages/ApiFunctions/apis.dart';
+import 'package:app/pages/ApiFunctions/apis.dart'; 
+import 'package:app/pages/loginsignup.dart'; // <- fixed import
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
@@ -15,421 +18,295 @@ class DetailPage extends StatefulWidget {
 
 class _DetailPageState extends State<DetailPage> {
   String selectedSection = 'Details';
-  late GoogleMapController _mapController;
-  LatLng? _currentPosition;
-  bool _isLoading = true;
+  LatLng latLng = const LatLng(0, 0);
 
   Map<String, String> placeDetails = {};
   List<Map<String, dynamic>> reviews = [];
-  LatLng latLng = LatLng(0, 0);
   List<String> images = [];
 
-  double newRating = 0.0;
-  final TextEditingController reviewController = TextEditingController();
+  bool _hasReviewed = false;
+  double averageRating = 0.0;
+  int reviewCount = 0;
 
-  Future<void> _getCurrentLocation() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    // Check if location services are enabled
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return Future.error('Location services are disabled.');
-    }
-
-    // Check permission status
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        return Future.error('Location permission denied.');
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      return Future.error('Location permissions are permanently denied.');
-    }
-
-    // Get the current position
-    Position position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-    );
-    print(position);
-
-    setState(() {
-      _currentPosition = LatLng(position.latitude, position.longitude);
-      _isLoading = false;
-    });
-  }
-
+  @override
   void initState() {
     super.initState();
     getdetails();
     _getCurrentLocation();
+    _loadReviews();
   }
 
-  getdetails() async {
+  Future<void> _getCurrentLocation() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) return;
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+    }
+    if (permission == LocationPermission.deniedForever) return;
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    setState(() {
+      // not used directly in this file, but kept as in original
+      latLng = LatLng(position.latitude, position.longitude);
+    });
+  }
+
+  Future<void> getdetails() async {
     placeDetails = await getplacedetails(widget.title);
     latLng = await getlatlong(widget.title);
     images = await getimages(widget.title);
     setState(() {});
-    _buildDetails();
   }
 
-  @override
-  void dispose() {
-    reviewController.dispose();
-    super.dispose();
+  Future<void> _loadReviews() async {
+    final snapshot = await FirebaseFirestore.instance
+        .collection('reviews')
+        .where('placeName', isEqualTo: widget.title)
+        .get();
+
+    final data = snapshot.docs.map((d) => d.data()).toList();
+
+    final user = FirebaseAuth.instance.currentUser;
+    final casted = <Map<String, dynamic>>[];
+    for (var e in data) {
+      if (e is Map<String, dynamic>) {
+        casted.add(e);
+      } else {
+        // defensive fallback: try to convert
+        casted.add(Map<String, dynamic>.from(e as Map));
+      }
+    }
+
+    setState(() {
+      reviews = casted;
+      reviewCount = reviews.length;
+      if (reviews.isNotEmpty) {
+        double total = 0;
+        for (var r in reviews) {
+          final ratingObj = r['rating'];
+          if (ratingObj is int) total += ratingObj.toDouble();
+          else if (ratingObj is double) total += ratingObj;
+          else if (ratingObj is num) total += ratingObj.toDouble();
+        }
+        averageRating = total / reviews.length;
+      } else {
+        averageRating = 0.0;
+      }
+      _hasReviewed =
+          user != null && reviews.any((r) => (r['email'] as String?) == user.email);
+    });
   }
 
-  double get averageRating {
-    if (reviews.isEmpty) return 0.0;
-    return reviews.map((r) => r['rating'] as double).reduce((a, b) => a + b) /
-        reviews.length;
-  }
+  Future<void> _addReview(BuildContext context) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          backgroundColor: Colors.black87,
+          title: const Text("Login Required", style: TextStyle(color: Colors.white)),
+          content:
+              const Text("Please login to add a review.", style: TextStyle(color: Colors.white70)),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                // direct push to your LoginScreen, with required callback param
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => LoginScreen(onLoginSuccess: () {}),
+                  ),
+                );
+              },
+              child: const Text("Login", style: TextStyle(color: Colors.blue)),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel", style: TextStyle(color: Colors.white70)),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
 
-  void _showAddReviewModal() {
-    double tempRating = 0.0;
-    TextEditingController tempController = TextEditingController();
+    double rating = 0.0;
+    final commentController = TextEditingController();
 
-    showModalBottomSheet(
+    showDialog(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.black,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-            left: 20,
-            right: 20,
-            top: 20,
-          ),
-          child: StatefulBuilder(
-            builder: (context, setModalState) {
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Add Your Review',
-                    style: TextStyle(color: Colors.white, fontSize: 18),
-                  ),
-                  SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(5, (index) {
-                      return IconButton(
-                        onPressed: () {
-                          setModalState(() {
-                            tempRating = (index + 1).toDouble();
-                          });
-                        },
-                        icon: Icon(
-                          Icons.star,
-                          color:
-                              index < tempRating ? Colors.amber : Colors.grey,
-                        ),
-                      );
-                    }),
-                  ),
-                  TextField(
-                    controller: tempController,
-                    maxLines: 3,
-                    style: TextStyle(color: Colors.white),
-                    decoration: InputDecoration(
-                      hintText: 'Write your review',
-                      hintStyle: TextStyle(color: Colors.grey),
-                      filled: true,
-                      fillColor: Colors.grey[900],
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  ElevatedButton(
+      builder: (ctx) => AlertDialog(
+        backgroundColor: Colors.black87,
+        title: const Text("Add Review", style: TextStyle(color: Colors.white)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text("Rate this place:", style: TextStyle(color: Colors.white70)),
+            const SizedBox(height: 8),
+            StatefulBuilder(
+              builder: (context, setStarState) => Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(5, (i) {
+                  return IconButton(
+                    icon: Icon(i < rating ? Icons.star : Icons.star_border, color: Colors.amber),
                     onPressed: () {
-                      if (tempRating > 0 && tempController.text.isNotEmpty) {
-                        setState(() {
-                          reviews.add({
-                            'rating': tempRating,
-                            'comment': tempController.text,
-                          });
-                        });
-                        Navigator.pop(context);
-                      }
+                      setStarState(() {
+                        rating = i + 1.0;
+                      });
                     },
-                    child: Text('Submit'),
-                  ),
-                ],
-              );
+                  );
+                }),
+              ),
+            ),
+            TextField(
+              controller: commentController,
+              style: const TextStyle(color: Colors.white),
+              decoration: const InputDecoration(
+                hintText: "Write your comment...",
+                hintStyle: TextStyle(color: Colors.white54),
+                enabledBorder:
+                    UnderlineInputBorder(borderSide: BorderSide(color: Colors.white38)),
+                focusedBorder:
+                    UnderlineInputBorder(borderSide: BorderSide(color: Colors.blueAccent)),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              if (rating == 0.0 || commentController.text.trim().isEmpty) return;
+              await FirebaseFirestore.instance.collection('reviews').add({
+                'placeName': widget.title,
+                'email': user.email,
+                'comment': commentController.text.trim(),
+                'rating': rating,
+                'timestamp': Timestamp.now(),
+              });
+              Navigator.pop(ctx);
+              setState(() => _hasReviewed = true);
+              await _loadReviews();
             },
+            child: const Text("Submit", style: TextStyle(color: Colors.blue)),
           ),
-        );
-      },
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReviews() {
+    // Use the locally loaded `reviews` for display (keeps UI consistent).
+    // You can also use StreamBuilder for real-time updates (I can swap this if you prefer).
+    if (reviews.isEmpty) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: const [
+          Text('User Reviews:', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+          SizedBox(height: 10),
+          Text('No reviews yet.', style: TextStyle(color: Colors.white70)),
+          SizedBox(height: 80),
+        ],
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.star, color: Colors.amber, size: 24),
+            const SizedBox(width: 6),
+            Text(
+              '${averageRating.toStringAsFixed(1)} / 5.0 ($reviewCount Reviews)',
+              style: const TextStyle(color: Colors.white, fontSize: 16),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        ...reviews.map((review) {
+          final email = (review['email'] as String?) ?? 'Anonymous';
+          final comment = (review['comment'] as String?) ?? '';
+          final ratingNum = review['rating'];
+          final rating = ratingNum is int ? ratingNum.toDouble() : (ratingNum is double ? ratingNum : 0.0);
+          final timestamp = review['timestamp'];
+          String dateText = '';
+          if (timestamp is Timestamp) {
+            final dt = timestamp.toDate();
+            dateText = '${dt.day.toString().padLeft(2, '0')}-${dt.month.toString().padLeft(2, '0')}-${dt.year}';
+          }
+
+          return Container(
+            margin: const EdgeInsets.symmetric(vertical: 6.0),
+            padding: const EdgeInsets.all(12.0),
+            decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(12)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(children: [
+                  const Icon(Icons.person, color: Colors.white70),
+                  const SizedBox(width: 8),
+                  Text(email, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                ]),
+                const SizedBox(height: 6),
+                Row(children: List.generate(5, (i) {
+                  return Icon(i < rating ? Icons.star : Icons.star_border, color: Colors.amber, size: 16);
+                })),
+                const SizedBox(height: 6),
+                Text(comment, style: const TextStyle(color: Colors.white70)),
+                if (dateText.isNotEmpty) ...[
+                  const SizedBox(height: 6),
+                  Text(dateText, style: const TextStyle(color: Colors.grey, fontSize: 11)),
+                ]
+              ],
+            ),
+          );
+        }).toList(),
+        const SizedBox(height: 80),
+      ],
     );
   }
 
   Widget _buildDetails() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children:
-          placeDetails.entries.map((entry) {
-            final String key =
-                entry.key[0].toUpperCase() + entry.key.substring(1);
-            final String value = entry.value.toString();
+      children: placeDetails.entries.map((entry) {
+        final String key = entry.key[0].toUpperCase() + entry.key.substring(1);
+        final String value = entry.value.toString();
 
-            return Card(
-              color: Colors.white10,
-              margin: const EdgeInsets.symmetric(
-                vertical: 6.0,
-                horizontal: 4.0,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(
-                      Icons.label_outline,
-                      color: Colors.tealAccent,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: RichText(
-                        text: TextSpan(
-                          children: [
-                            TextSpan(
-                              text: '$key: ',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                                fontSize: 16,
-                              ),
-                            ),
-                            TextSpan(
-                              text: value,
-                              style: TextStyle(
-                                color: Colors.white70,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }).toList(),
-    );
-  }
-
-  Widget _buildReviews() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'User Reviews:',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        SizedBox(height: 10),
-        ...reviews.map(
-          (review) => Padding(
-            padding: const EdgeInsets.symmetric(vertical: 6.0),
+        return Card(
+          color: Colors.white10,
+          margin: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 4.0),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.star, color: Colors.amber, size: 20),
-                SizedBox(width: 6),
+                const Icon(Icons.label_outline, color: Colors.tealAccent, size: 20),
+                const SizedBox(width: 8),
                 Expanded(
-                  child: Text(
-                    '${review['rating']} - ${review['comment']}',
-                    style: TextStyle(color: Colors.white),
+                  child: RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: '$key: ',
+                          style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 16),
+                        ),
+                        TextSpan(
+                          text: value,
+                          style: const TextStyle(color: Colors.white70, fontSize: 16),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
             ),
           ),
-        ),
-        SizedBox(height: 80),
-      ],
-    );
-  }
-
-  Widget _buildHotels() {
-    final List<Map<String, dynamic>> hotels = [
-      {'name': 'Hotel Paradise', 'rating': 4.2},
-      {'name': 'Nature Stay Inn', 'rating': 3.9},
-      {'name': 'Budget Lodge', 'rating': 3.5},
-    ];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children:
-          hotels.map((hotel) {
-            final String name = hotel['name'].toString();
-            final double rating = (hotel['rating'] as num).toDouble();
-
-            return Card(
-              color: Colors.white10,
-              margin: const EdgeInsets.symmetric(
-                vertical: 6.0,
-                horizontal: 4.0,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Row(
-                  children: [
-                    Icon(Icons.hotel, color: Colors.tealAccent, size: 24),
-                    SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            name,
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          SizedBox(height: 4),
-                          Row(
-                            children: [
-                              Icon(Icons.star, color: Colors.amber, size: 16),
-                              SizedBox(width: 4),
-                              Text(
-                                '$rating / 5.0',
-                                style: TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }).toList(),
-    );
-  }
-
-  Widget _buildImages() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
-          child: Text(
-            "Gallery",
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        ...images.map((url) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 8.0,
-            ),
-            child: GestureDetector(
-              onTap: () {
-                showDialog(
-                  context: context,
-                  builder:
-                      (_) => Dialog(
-                        backgroundColor: Colors.transparent,
-                        insetPadding: EdgeInsets.all(10),
-                        child: InteractiveViewer(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(16),
-                            child: Image.network(
-                              url,
-                              fit: BoxFit.contain,
-                              errorBuilder:
-                                  (context, error, stackTrace) => Container(
-                                    color: Colors.black,
-                                    alignment: Alignment.center,
-                                    child: Icon(
-                                      Icons.broken_image,
-                                      color: Colors.white,
-                                      size: 40,
-                                    ),
-                                  ),
-                            ),
-                          ),
-                        ),
-                      ),
-                );
-              },
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: Container(
-                  decoration: BoxDecoration(
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
-                        blurRadius: 8,
-                        offset: Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: Image.network(
-                      url,
-                      fit: BoxFit.cover,
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return Center(
-                          child: CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              Colors.white,
-                            ),
-                          ),
-                        );
-                      },
-                      errorBuilder:
-                          (context, error, stackTrace) => Container(
-                            color: Colors.grey[800],
-                            alignment: Alignment.center,
-                            child: Icon(
-                              Icons.broken_image,
-                              color: Colors.white54,
-                              size: 40,
-                            ),
-                          ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          );
-        }).toList(),
-      ],
+        );
+      }).toList(),
     );
   }
 
@@ -444,51 +321,55 @@ class _DetailPageState extends State<DetailPage> {
           borderRadius: BorderRadius.circular(16),
           child: SizedBox(
             height: 300,
-            child: Stack(
-              children: [
-                GoogleMap(
-                  initialCameraPosition: CameraPosition(
-                    target: latLng, // Your LatLng value
-                    zoom: 7,
-                  ),
-                  markers: {
-                    Marker(
-                      markerId: MarkerId('location'),
-                      position: latLng,
-                      infoWindow: InfoWindow(
-                        title: widget.title,
-                        snippet: 'Tap for more',
-                      ),
-                    ),
-                  },
-                  zoomControlsEnabled: false,
-                  mapType: MapType.normal,
-                  myLocationButtonEnabled: false,
-                ),
-                Positioned(
-                  top: 12,
-                  left: 12,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: Colors.black54,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      "Location on Map",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+            child: GoogleMap(
+              initialCameraPosition: CameraPosition(target: latLng, zoom: 7),
+              markers: {
+                Marker(markerId: const MarkerId('location'), position: latLng, infoWindow: InfoWindow(title: widget.title)),
+              },
+              zoomControlsEnabled: false,
+              myLocationButtonEnabled: false,
             ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildHotels() {
+    final hotels = [
+      {'name': 'Hotel Paradise', 'rating': 4.2},
+      {'name': 'Nature Stay Inn', 'rating': 3.9},
+      {'name': 'Budget Lodge', 'rating': 3.5},
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: hotels.map((hotel) {
+        final name = hotel['name']?.toString() ?? '';
+        final rating = hotel['rating']?.toString() ?? '';
+        return Card(
+          color: Colors.white10,
+          margin: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 4.0),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          child: ListTile(
+            leading: const Icon(Icons.hotel, color: Colors.tealAccent),
+            title: Text(name, style: const TextStyle(color: Colors.white)),
+            subtitle: Text('Rating: $rating', style: const TextStyle(color: Colors.white70)),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildImages() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: images.map((url) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: ClipRRect(borderRadius: BorderRadius.circular(16), child: Image.network(url, fit: BoxFit.cover)),
+        );
+      }).toList(),
     );
   }
 
@@ -505,20 +386,17 @@ class _DetailPageState extends State<DetailPage> {
       case 'Images':
         return _buildImages();
       default:
-        return Text(
-          "No content available.",
-          style: TextStyle(color: Colors.white),
-        );
+        return const Text("No content available.", style: TextStyle(color: Colors.white));
     }
   }
 
   Widget _functionLabel(String text) {
     final bool isSelected = selectedSection == text;
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 6),
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      margin: const EdgeInsets.symmetric(horizontal: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: isSelected ? Colors.white : Color.fromARGB(255, 30, 30, 30),
+        color: isSelected ? Colors.white : const Color.fromARGB(255, 30, 30, 30),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.white),
       ),
@@ -529,19 +407,8 @@ class _DetailPageState extends State<DetailPage> {
           minimumSize: Size(54, 23),
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         ),
-        onPressed: () {
-          setState(() {
-            selectedSection = text;
-          });
-        },
-        child: Text(
-          text,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            color: isSelected ? Colors.black : Colors.white,
-          ),
-        ),
+        onPressed: () => setState(() => selectedSection = text),
+        child: Text(text, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: isSelected ? Colors.black : Colors.white)),
       ),
     );
   }
@@ -550,21 +417,14 @@ class _DetailPageState extends State<DetailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      floatingActionButton:
-          selectedSection == 'Reviews'
-              ? FloatingActionButton.extended(
-                onPressed: _showAddReviewModal,
-                backgroundColor: Colors.amber,
-                label: Text(
-                  'Add Comment',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                icon: Icon(Icons.add_comment, color: Colors.black),
-              )
-              : null,
+      floatingActionButton: selectedSection == 'Reviews' && !_hasReviewed
+          ? FloatingActionButton.extended(
+              onPressed: () => _addReview(context),
+              backgroundColor: Colors.amber,
+              label: const Text('Add Comment', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+              icon: const Icon(Icons.add_comment, color: Colors.black),
+            )
+          : null,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -573,12 +433,7 @@ class _DetailPageState extends State<DetailPage> {
               Container(
                 height: 300,
                 width: double.infinity,
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: NetworkImage(widget.imagePath),
-                    fit: BoxFit.cover,
-                  ),
-                ),
+                decoration: BoxDecoration(image: DecorationImage(image: NetworkImage(widget.imagePath), fit: BoxFit.cover)),
               ),
               Container(
                 height: 300,
@@ -594,7 +449,7 @@ class _DetailPageState extends State<DetailPage> {
                 top: 40,
                 left: 16,
                 child: IconButton(
-                  icon: Icon(Icons.arrow_back, color: Colors.white, size: 30),
+                  icon: const Icon(Icons.arrow_back, color: Colors.white, size: 30),
                   onPressed: () => Navigator.pop(context),
                 ),
               ),
@@ -602,7 +457,7 @@ class _DetailPageState extends State<DetailPage> {
                 top: 40,
                 right: 16,
                 child: IconButton(
-                  icon: Icon(
+                  icon: const Icon(
                     Icons.favorite_border,
                     color: Colors.white,
                     size: 30,
@@ -616,7 +471,7 @@ class _DetailPageState extends State<DetailPage> {
                 right: 100,
                 child: Text(
                   widget.title,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 30,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
@@ -661,7 +516,8 @@ class _DetailPageState extends State<DetailPage> {
             ),
           ),
         ],
+
       ),
     );
   }
-}
+} 
