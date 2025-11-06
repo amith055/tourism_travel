@@ -39,17 +39,16 @@ class _LoginScreenState extends State<LoginScreen> {
           message: 'Please verify your email first',
         );
       }
+
       setState(() {
         widget.onLoginSuccess();
       });
 
-      // Call this callback
-
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder:
-              (context) => MainPage(login: true, email: emailController.text),
+          builder: (context) =>
+              MainPage(login: true, email: emailController.text),
         ),
       );
     } on FirebaseAuthException catch (e) {
@@ -73,6 +72,94 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() => isLoading = false);
     }
   }
+
+  // ✅ Forgot password dialog function
+  void _showForgotPasswordDialog() {
+  final TextEditingController resetEmailController = TextEditingController();
+
+  showDialog(
+    context: context,
+    builder: (context) {
+      bool _sending = false;
+
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            backgroundColor: Colors.grey[900],
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            title: const Text(
+              'Forgot Password?',
+              style: TextStyle(color: Colors.white),
+            ),
+            content: TextField(
+              controller: resetEmailController,
+              style: const TextStyle(color: Colors.white),
+              decoration: const InputDecoration(
+                labelText: 'Enter your email',
+                labelStyle: TextStyle(color: Colors.white70),
+                enabledBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white70),
+                ),
+                focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white),
+                ),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel', style: TextStyle(color: Colors.redAccent)),
+              ),
+              ElevatedButton(
+                onPressed: _sending
+                    ? null
+                    : () async {
+                        final email = resetEmailController.text.trim();
+                        if (email.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Please enter your email')),
+                          );
+                          return;
+                        }
+
+                        setState(() => _sending = true);
+                        try {
+                          await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+                          Navigator.pop(context); // close dialog
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Password reset email sent!')),
+                          );
+                        } on FirebaseAuthException catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(e.message ?? 'Error sending reset email')),
+                          );
+                        } finally {
+                          if (Navigator.canPop(context)) {
+                            setState(() => _sending = false);
+                          }
+                        }
+                      },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color.fromARGB(255, 120, 239, 241),
+                ),
+                child: _sending
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                      )
+                    : const Text('Send'),
+              ),
+            ],
+          );
+        },
+      );
+    },
+  );
+}
+
 
   Future<void> _resendVerification() async {
     try {
@@ -160,9 +247,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     filled: true,
                     fillColor: Colors.grey[900],
                   ),
-                  validator:
-                      (value) =>
-                          !value!.contains('@') ? 'Enter a valid email' : null,
+                  validator: (value) =>
+                      !value!.contains('@') ? 'Enter a valid email' : null,
                 ),
                 SizedBox(height: 16),
                 TextFormField(
@@ -202,55 +288,68 @@ class _LoginScreenState extends State<LoginScreen> {
                     filled: true,
                     fillColor: Colors.grey[900],
                   ),
-                  validator:
-                      (value) => value!.isEmpty ? 'Enter your password' : null,
+                  validator: (value) =>
+                      value!.isEmpty ? 'Enter your password' : null,
                 ),
+
+                // ✅ Forgot Password button (newly added)
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: _showForgotPasswordDialog,
+                    child: const Text(
+                      "Forgot Password?",
+                      style: TextStyle(color: Color.fromARGB(255, 125, 239, 247)),
+                    ),
+                  ),
+                ),
+
                 SizedBox(height: 24),
                 ElevatedButton(
                   onPressed: isLoading ? null : _login,
                   style: ElevatedButton.styleFrom(
                     padding: EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: const Color.fromARGB(255, 251, 251, 252),
+                    backgroundColor:
+                        const Color.fromARGB(255, 123, 238, 242),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child:
-                      isLoading
-                          ? SizedBox(
-                            height: 24,
-                            width: 24,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                          : Text(
-                            'Login',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
+                  child: isLoading
+                      ? SizedBox(
+                          height: 24,
+                          width: 24,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
                           ),
+                        )
+                      : Text(
+                          'Login',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                 ),
                 SizedBox(height: 16),
                 TextButton(
-                  onPressed:
-                      () => Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => SignupScreen()),
-                      ),
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SignupScreen()),
+                  ),
                   child: RichText(
                     text: TextSpan(
                       text: 'Don\'t have an account? ',
-                      style: TextStyle(fontSize: 14, color: Colors.grey[400]),
+                      style:
+                          TextStyle(fontSize: 14, color: Colors.grey[400]),
                       children: [
                         TextSpan(
                           text: 'Sign Up',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            color: const Color.fromARGB(255, 248, 248, 249),
+                            color: const Color.fromARGB(255, 117, 225, 246),
                           ),
                         ),
                       ],
@@ -266,6 +365,8 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
+
+// (Your SignupScreen remains exactly the same)
 class SignupScreen extends StatefulWidget {
   @override
   _SignupScreenState createState() => _SignupScreenState();
@@ -606,4 +707,4 @@ class _SignupScreenState extends State<SignupScreen> {
       validator: validator,
     );
   }
-}
+} 

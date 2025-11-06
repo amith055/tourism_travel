@@ -24,7 +24,9 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(widget.message!),
-            duration: Duration(seconds: 4),
+            backgroundColor: Colors.greenAccent[700],
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 3),
           ),
         );
       }
@@ -38,8 +40,10 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
 
     if (isVerified) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Email verified successfully!'),
+          backgroundColor: Colors.greenAccent,
+          behavior: SnackBarBehavior.floating,
           duration: Duration(seconds: 2),
         ),
       );
@@ -52,15 +56,19 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
     try {
       await AuthService.resendVerificationEmail();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Verification email resent!'),
+          backgroundColor: Colors.blueAccent,
+          behavior: SnackBarBehavior.floating,
           duration: Duration(seconds: 3),
         ),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Failed to resend verification email'),
+          backgroundColor: Colors.redAccent,
+          behavior: SnackBarBehavior.floating,
           duration: Duration(seconds: 3),
         ),
       );
@@ -72,35 +80,93 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Verify Email')),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'Please verify your email address',
-                style: Theme.of(context).textTheme.titleLarge,
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        title:
+            const Text('Verify Email', style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.black87, Colors.black],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Card(
+              color: Colors.grey[900],
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
               ),
-              SizedBox(height: 16),
-              Text(
-                'We\'ve sent a verification email to your email address. '
-                'Please check your inbox and click the verification link.',
-                textAlign: TextAlign.center,
+              elevation: 6,
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.email_outlined,
+                        color: Colors.blueAccent, size: 64),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Verify Your Email',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 12),
+                    const Text(
+                      "We've sent a verification link to your email. "
+                      "Please check your inbox and click the link to verify your account.",
+                      style: TextStyle(color: Colors.white70, fontSize: 15),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 28),
+                    isLoading
+                        ? const CircularProgressIndicator(
+                            color: Colors.blueAccent,
+                          )
+                        : ElevatedButton(
+                            onPressed: _checkVerification,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color.fromARGB(255, 123, 247, 251),
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 14, horizontal: 24),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: const Text(
+                              "I've Verified My Email",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 16),
+                            ),
+                          ),
+                    const SizedBox(height: 12),
+                    TextButton(
+                      onPressed: _resendVerification,
+                      child: const Text(
+                        'Resend Verification Email',
+                        style: TextStyle(
+                          color: Colors.blueAccent,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              SizedBox(height: 32),
-              isLoading
-                  ? CircularProgressIndicator()
-                  : ElevatedButton(
-                    onPressed: _checkVerification,
-                    child: Text('I\'ve verified my email'),
-                  ),
-              TextButton(
-                onPressed: _resendVerification,
-                child: Text('Resend verification email'),
-              ),
-            ],
+            ),
           ),
         ),
       ),

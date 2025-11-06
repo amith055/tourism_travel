@@ -263,34 +263,34 @@ void showPopupMenu(BuildContext context, VoidCallback onRefresh) {
 
 Please read these Terms and Conditions carefully before using our app. By accessing or using LokVisit, you agree to be bound by these terms.
 
-1. **Acceptance of Terms**
+1. *Acceptance of Terms*
 By using this app, you agree to comply with and be legally bound by these terms of service.
 
-2. **User Responsibilities**
+2. *User Responsibilities*
 Users must provide accurate information and respect community guidelines. Misuse, spam, or offensive content may result in suspension.
 
-3. **Content Submission**
+3. *Content Submission*
 By submitting cultural or tourism-related data, you grant LokVisit the right to display and use it for informational and promotional purposes.
 
-4. **Privacy Policy**
+4. *Privacy Policy*
 Your data is collected and stored securely. We do not share personal information without your consent.
 
-5. **Location Access**
+5. *Location Access*
 This app uses location services to display nearby cultural and tourist places. You may disable location access anytime in your device settings.
 
-6. **Verification**
+6. *Verification*
 All submitted places, images, and location data will undergo verification by our team or organization before publishing. Duplicates or copied places will be rejected.
 
-7. **Rewards**
+7. *Rewards*
 Rewards are offered upon successful verification of your submissions. The reward type and quantity are determined by the organization and may vary.
 
-8. **Liability Disclaimer**
+8. *Liability Disclaimer*
 LokVisit is not responsible for any inaccuracies or losses arising from user-submitted data or third-party integrations.
 
-9. **Modifications**
+9. *Modifications*
 We may update these terms periodically. Continued use of the app signifies your acceptance of any changes.
 
-10. **Contact**
+10. *Contact*
 For any questions or concerns, please contact us at lokvisit.support@gmail.com.
 
 Thank you for contributing to LokVisit and helping promote culture and tourism responsibly!""",
