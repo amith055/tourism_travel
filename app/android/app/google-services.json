@@ -115,6 +115,28 @@
           "other_platform_oauth_client": []
         }
       }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:38395896470:android:82b8e20e291cb91c5918b7",
+        "android_client_info": {
+          "package_name": "com.example.lokvista_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyATbg_htXJpnTp7b99tght3Rz4sllVQ0Xg"
+        },
+        {
+          "current_key": "AIzaSyCNcqsbu9-jqM5Tn65drO1zJjbY96PfbqM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
     }
   ],
   "configuration_version": "1"

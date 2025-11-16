@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:app/pages/ApiFunctions/apis.dart';
-import 'package:app/pages/components/destails.dart';
+import 'package:lokvista_app/pages/apifunctions/apis.dart';
+import 'package:lokvista_app/pages/components/details.dart';
 
 class AllinOne extends StatefulWidget {
   final bool button;
@@ -80,11 +80,10 @@ class _BannerWithCarouselPageState extends State<AllinOne> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder:
-                            (_) => DetailPage(
-                              title: banner['title']!,
-                              imagePath: banner['image']!,
-                            ),
+                        builder: (_) => DetailPage(
+                          title: banner['title']!,
+                          imagePath: banner['image']!,
+                        ),
                       ),
                     );
                   },
@@ -215,11 +214,10 @@ class _BannerWithCarouselPageState extends State<AllinOne> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder:
-                                    (_) => DetailPage(
-                                      title: item['title']!,
-                                      imagePath: item['image']!,
-                                    ),
+                                builder: (_) => DetailPage(
+                                  title: item['title']!,
+                                  imagePath: item['image']!,
+                                ),
                               ),
                             );
                           },

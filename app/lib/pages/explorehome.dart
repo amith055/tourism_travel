@@ -1,7 +1,7 @@
-import 'package:app/pages/components/destails.dart';
+import 'package:lokvista_app/pages/components/details.dart';
 import 'package:flutter/material.dart';
 import 'ApiFunctions/apis.dart';
-import 'components/destails.dart'; // Make sure you import the details page
+import 'components/details.dart'; // Make sure you import the details page
 
 class ExplorePage extends StatefulWidget {
   const ExplorePage({super.key});
@@ -65,26 +65,25 @@ class _ExplorePageState extends State<ExplorePage> {
                 snap: true,
                 backgroundColor: Colors.black,
                 toolbarHeight: 50,
-                title:
-                    _isSearching
-                        ? TextField(
-                          controller: _searchController,
-                          style: const TextStyle(color: Colors.white),
-                          decoration: InputDecoration(
-                            hintText: 'Search $title',
-                            hintStyle: TextStyle(color: Colors.grey),
-                            border: InputBorder.none,
-                          ),
-                          onChanged: (value) {
-                            setState(() {
-                              _searchQuery = value;
-                            });
-                          },
-                        )
-                        : Text(
-                          'Explore Latest $title',
-                          style: TextStyle(color: Colors.white),
+                title: _isSearching
+                    ? TextField(
+                        controller: _searchController,
+                        style: const TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
+                          hintText: 'Search $title',
+                          hintStyle: TextStyle(color: Colors.grey),
+                          border: InputBorder.none,
                         ),
+                        onChanged: (value) {
+                          setState(() {
+                            _searchQuery = value;
+                          });
+                        },
+                      )
+                    : Text(
+                        'Explore Latest $title',
+                        style: TextStyle(color: Colors.white),
+                      ),
                 actions: [
                   IconButton(
                     icon: Icon(_isSearching ? Icons.close : Icons.search),
@@ -114,11 +113,10 @@ class _ExplorePageState extends State<ExplorePage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder:
-                                (context) => DetailPage(
-                                  title: episode['title']!,
-                                  imagePath: episode['image']!,
-                                ),
+                            builder: (context) => DetailPage(
+                              title: episode['title']!,
+                              imagePath: episode['image']!,
+                            ),
                           ),
                         );
                       },

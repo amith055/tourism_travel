@@ -17,36 +17,26 @@ final DateFormat formatter = DateFormat('yyyy-MM-dd');
 Future<List<Map<String, String>>> getbanneritems() async {
   final List<Map<String, String>> banneritems = [];
   try {
-    QuerySnapshot popularplaces =
-        await touristcollection
-            .limit(5)
-            .where('review_rating', isGreaterThan: 4.0)
-            .get();
+    QuerySnapshot popularplaces = await touristcollection
+        .limit(5)
+        .where('review_rating', isGreaterThan: 4.0)
+        .get();
     for (var placeDoc in popularplaces.docs) {
       String placeId = placeDoc.id;
       String title = placeDoc['name'];
       String city = placeDoc['city'];
-      // Step 2: Fetch only one image for this place
-      QuerySnapshot imagesSnapshot =
-          await imagescollection
-              .where('placeId', isEqualTo: placeId)
-              .limit(1)
-              .get();
+      QuerySnapshot imagesSnapshot = await imagescollection
+          .where('placeId', isEqualTo: placeId)
+          .limit(1)
+          .get();
 
       String? imageUrl;
       if (imagesSnapshot.docs.isNotEmpty) {
         imageUrl = imagesSnapshot.docs.first['imageUrl'];
       }
 
-      // Step 3: Combine into a JSON-like map
-      banneritems.add({
-        'title': title,
-        'image': imageUrl ?? '',
-        'city': city, // Use empty string if no image found
-      });
+      banneritems.add({'title': title, 'image': imageUrl ?? '', 'city': city});
     }
-    // ignore: duplicate_ignore
-    // ignore: empty_catches
   } catch (e) {}
   return banneritems;
 }
@@ -54,38 +44,31 @@ Future<List<Map<String, String>>> getbanneritems() async {
 Future<List<Map<String, String>>> gettouristplaces() async {
   final List<Map<String, String>> touristplaces = [];
   try {
-    QuerySnapshot popularplaces =
-        await touristcollection
-            .where(
-              'significance',
-              whereIn: ['Nature', 'Beach', 'Wildlife', 'Historical'],
-            )
-            .get();
+    QuerySnapshot popularplaces = await touristcollection
+        .where(
+          'significance',
+          whereIn: ['Nature', 'Beach', 'Wildlife', 'Historical'],
+        )
+        .get();
     for (var placeDoc in popularplaces.docs) {
       String placeId = placeDoc.id;
       String title = placeDoc['name'];
       String city = placeDoc['city'];
-      // Step 2: Fetch only one image for this place
-      QuerySnapshot imagesSnapshot =
-          await imagescollection
-              .where('placeId', isEqualTo: placeId)
-              .limit(1)
-              .get();
+      QuerySnapshot imagesSnapshot = await imagescollection
+          .where('placeId', isEqualTo: placeId)
+          .limit(1)
+          .get();
 
       String? imageUrl;
       if (imagesSnapshot.docs.isNotEmpty) {
         imageUrl = imagesSnapshot.docs.first['imageUrl'];
       }
-
-      // Step 3: Combine into a JSON-like map
       touristplaces.add({
         'title': title,
         'image': imageUrl ?? '',
-        'city': city, // Use empty string if no image found
+        'city': city,
       });
     }
-    // ignore: duplicate_ignore
-    // ignore: empty_catches
   } catch (e) {}
   return touristplaces;
 }
@@ -93,33 +76,28 @@ Future<List<Map<String, String>>> gettouristplaces() async {
 Future<List<Map<String, String>>> gettouristplacesspecific(type) async {
   final List<Map<String, String>> touristplaces = [];
   try {
-    QuerySnapshot popularplaces =
-        await touristcollection.where('significance', isEqualTo: type).get();
+    QuerySnapshot popularplaces = await touristcollection
+        .where('significance', isEqualTo: type)
+        .get();
     for (var placeDoc in popularplaces.docs) {
       String placeId = placeDoc.id;
       String title = placeDoc['name'];
       String city = placeDoc['city'];
-      // Step 2: Fetch only one image for this place
-      QuerySnapshot imagesSnapshot =
-          await imagescollection
-              .where('placeId', isEqualTo: placeId)
-              .limit(1)
-              .get();
+      QuerySnapshot imagesSnapshot = await imagescollection
+          .where('placeId', isEqualTo: placeId)
+          .limit(1)
+          .get();
 
       String? imageUrl;
       if (imagesSnapshot.docs.isNotEmpty) {
         imageUrl = imagesSnapshot.docs.first['imageUrl'];
       }
-
-      // Step 3: Combine into a JSON-like map
       touristplaces.add({
         'title': title,
         'image': imageUrl ?? '',
-        'city': city, // Use empty string if no image found
+        'city': city,
       });
     }
-    // ignore: duplicate_ignore
-    // ignore: empty_catches
   } catch (e) {}
   return touristplaces;
 }
@@ -127,39 +105,29 @@ Future<List<Map<String, String>>> gettouristplacesspecific(type) async {
 Future<List<Map<String, String>>> getcultureplaces() async {
   final List<Map<String, String>> touristplaces = [];
   try {
-    QuerySnapshot popularplaces =
-        await touristcollection
-            .limit(5)
-            .where(
-              'significance',
-              whereIn: ['Culture', 'Religious', 'Spiritual'],
-            )
-            .get();
+    QuerySnapshot popularplaces = await touristcollection
+        .limit(5)
+        .where('significance', whereIn: ['Culture', 'Religious', 'Spiritual'])
+        .get();
     for (var placeDoc in popularplaces.docs) {
       String placeId = placeDoc.id;
       String title = placeDoc['name'];
       String city = placeDoc['city'];
-      // Step 2: Fetch only one image for this place
-      QuerySnapshot imagesSnapshot =
-          await imagescollection
-              .where('placeId', isEqualTo: placeId)
-              .limit(1)
-              .get();
+      QuerySnapshot imagesSnapshot = await imagescollection
+          .where('placeId', isEqualTo: placeId)
+          .limit(1)
+          .get();
 
       String? imageUrl;
       if (imagesSnapshot.docs.isNotEmpty) {
         imageUrl = imagesSnapshot.docs.first['imageUrl'];
       }
-
-      // Step 3: Combine into a JSON-like map
       touristplaces.add({
         'title': title,
         'image': imageUrl ?? '',
-        'city': city, // Use empty string if no image found
+        'city': city,
       });
     }
-    // ignore: duplicate_ignore
-    // ignore: empty_catches
   } catch (e) {}
   return touristplaces;
 }
@@ -167,36 +135,31 @@ Future<List<Map<String, String>>> getcultureplaces() async {
 Future<List<Map<String, String>>> getculturalplacesspecific(type) async {
   final List<Map<String, String>> touristplaces = [];
   try {
-    QuerySnapshot popularplaces =
-        await culturalcollection.where('type', isEqualTo: type).get();
+    QuerySnapshot popularplaces = await culturalcollection
+        .where('type', isEqualTo: type)
+        .get();
     for (var placeDoc in popularplaces.docs) {
       String placeId = placeDoc.id;
       String title = placeDoc['name'];
       String city = placeDoc['city'];
       DateTime date = placeDoc['date_of_organizing'].toDate();
       String formattedDate = "${date.day} ${DateFormat.MMMM().format(date)}";
-      // Step 2: Fetch only one image for this place
-      QuerySnapshot imagesSnapshot =
-          await imagescollection
-              .where('placeId', isEqualTo: placeId)
-              .limit(1)
-              .get();
+      QuerySnapshot imagesSnapshot = await imagescollection
+          .where('placeId', isEqualTo: placeId)
+          .limit(1)
+          .get();
 
       String? imageUrl;
       if (imagesSnapshot.docs.isNotEmpty) {
         imageUrl = imagesSnapshot.docs.first['imageUrl'];
       }
-
-      // Step 3: Combine into a JSON-like map
       touristplaces.add({
         'title': title,
         'image': imageUrl ?? '',
         'city': city,
-        'date': formattedDate, // Use empty string if no image found
+        'date': formattedDate,
       });
     }
-    // ignore: duplicate_ignore
-    // ignore: empty_catches
   } catch (e) {}
   return touristplaces;
 }
@@ -204,36 +167,30 @@ Future<List<Map<String, String>>> getculturalplacesspecific(type) async {
 Future<List<Map<String, String>>> getupcomingcultureplaces() async {
   final List<Map<String, String>> touristplaces = [];
   try {
-    QuerySnapshot popularplaces =
-        await culturalcollection
-            .limit(10)
-            .where('date_of_organizing', isGreaterThan: DateTime.now())
-            .get();
+    QuerySnapshot popularplaces = await culturalcollection
+        .limit(10)
+        .where('date_of_organizing', isGreaterThan: DateTime.now())
+        .get();
     for (var placeDoc in popularplaces.docs) {
       String placeId = placeDoc.id;
       String title = placeDoc['name'];
       String city = placeDoc['city'];
       DateTime date = placeDoc['date_of_organizing'].toDate();
       String formattedDate = "${date.day} ${DateFormat.MMMM().format(date)}";
-
-      // Step 2: Fetch only one image for this place
-      QuerySnapshot imagesSnapshot =
-          await imagescollection
-              .where('placeId', isEqualTo: placeId)
-              .limit(1)
-              .get();
+      QuerySnapshot imagesSnapshot = await imagescollection
+          .where('placeId', isEqualTo: placeId)
+          .limit(1)
+          .get();
 
       String? imageUrl;
       if (imagesSnapshot.docs.isNotEmpty) {
         imageUrl = imagesSnapshot.docs.first['imageUrl'];
       }
-
-      // Step 3: Combine into a JSON-like map
       touristplaces.add({
         'title': title,
         'image': imageUrl ?? '',
         'city': city,
-        'date': formattedDate, // Use empty string if no image found
+        'date': formattedDate,
       });
     }
   } catch (e) {}
@@ -243,32 +200,27 @@ Future<List<Map<String, String>>> getupcomingcultureplaces() async {
 Future<List<Map<String, String>>> getalltouristplaces() async {
   final List<Map<String, String>> touristplaces = [];
   try {
-    QuerySnapshot popularplaces =
-        await touristcollection
-            .limit(7)
-            .orderBy('name', descending: false)
-            .get();
+    QuerySnapshot popularplaces = await touristcollection
+        .limit(7)
+        .orderBy('name', descending: false)
+        .get();
     for (var placeDoc in popularplaces.docs) {
       String placeId = placeDoc.id;
       String title = placeDoc['name'];
       String city = placeDoc['city'];
-      // Step 2: Fetch only one image for this place
-      QuerySnapshot imagesSnapshot =
-          await imagescollection
-              .where('placeId', isEqualTo: placeId)
-              .limit(1)
-              .get();
+      QuerySnapshot imagesSnapshot = await imagescollection
+          .where('placeId', isEqualTo: placeId)
+          .limit(1)
+          .get();
 
       String? imageUrl;
       if (imagesSnapshot.docs.isNotEmpty) {
         imageUrl = imagesSnapshot.docs.first['imageUrl'];
       }
-
-      // Step 3: Combine into a JSON-like map
       touristplaces.add({
         'title': title,
         'image': imageUrl ?? '',
-        'city': city, // Use empty string if no image found
+        'city': city,
       });
     }
   } catch (e) {}
@@ -278,35 +230,30 @@ Future<List<Map<String, String>>> getalltouristplaces() async {
 Future<List<Map<String, String>>> getallculturalplaces() async {
   final List<Map<String, String>> touristplaces = [];
   try {
-    QuerySnapshot popularplaces =
-        await culturalcollection
-            .limit(7)
-            .orderBy('name', descending: false)
-            .get();
+    QuerySnapshot popularplaces = await culturalcollection
+        .limit(7)
+        .orderBy('name', descending: false)
+        .get();
     for (var placeDoc in popularplaces.docs) {
       String placeId = placeDoc.id;
       String title = placeDoc['name'];
       String city = placeDoc['city'];
       DateTime date = placeDoc['date_of_organizing'].toDate();
       String formattedDate = "${date.day} ${DateFormat.MMMM().format(date)}";
-      // Step 2: Fetch only one image for this place
-      QuerySnapshot imagesSnapshot =
-          await imagescollection
-              .where('placeId', isEqualTo: placeId)
-              .limit(1)
-              .get();
+      QuerySnapshot imagesSnapshot = await imagescollection
+          .where('placeId', isEqualTo: placeId)
+          .limit(1)
+          .get();
 
       String? imageUrl;
       if (imagesSnapshot.docs.isNotEmpty) {
         imageUrl = imagesSnapshot.docs.first['imageUrl'];
       }
-
-      // Step 3: Combine into a JSON-like map
       touristplaces.add({
         'title': title,
         'image': imageUrl ?? '',
         'city': city,
-        'date': formattedDate, // Use empty string if no image found
+        'date': formattedDate,
       });
     }
   } catch (e) {}
@@ -316,32 +263,28 @@ Future<List<Map<String, String>>> getallculturalplaces() async {
 Future<List<Map<String, String>>> gettouristplacesbyseason(type) async {
   final List<Map<String, String>> touristplaces = [];
   try {
-    QuerySnapshot popularplaces =
-        await touristcollection
-            .limit(5)
-            .where('best_season', isEqualTo: type)
-            .get();
+    QuerySnapshot popularplaces = await touristcollection
+        .limit(5)
+        .where('best_season', isEqualTo: type)
+        .get();
     for (var placeDoc in popularplaces.docs) {
       String placeId = placeDoc.id;
       String title = placeDoc['name'];
       String city = placeDoc['city'];
-      // Step 2: Fetch only one image for this place
-      QuerySnapshot imagesSnapshot =
-          await imagescollection
-              .where('placeId', isEqualTo: placeId)
-              .limit(1)
-              .get();
+      QuerySnapshot imagesSnapshot = await imagescollection
+          .where('placeId', isEqualTo: placeId)
+          .limit(1)
+          .get();
 
       String? imageUrl;
       if (imagesSnapshot.docs.isNotEmpty) {
         imageUrl = imagesSnapshot.docs.first['imageUrl'];
       }
 
-      // Step 3: Combine into a JSON-like map
       touristplaces.add({
         'title': title,
         'image': imageUrl ?? '',
-        'city': city, // Use empty string if no image found
+        'city': city,
       });
     }
   } catch (e) {}
@@ -351,32 +294,27 @@ Future<List<Map<String, String>>> gettouristplacesbyseason(type) async {
 Future<List<Map<String, String>>> gethighratedtouristplaces() async {
   final List<Map<String, String>> touristplaces = [];
   try {
-    QuerySnapshot popularplaces =
-        await touristcollection
-            .limit(5)
-            .orderBy('review_rating', descending: true)
-            .get();
+    QuerySnapshot popularplaces = await touristcollection
+        .limit(5)
+        .orderBy('review_rating', descending: true)
+        .get();
     for (var placeDoc in popularplaces.docs) {
       String placeId = placeDoc.id;
       String title = placeDoc['name'];
       String city = placeDoc['city'];
-      // Step 2: Fetch only one image for this place
-      QuerySnapshot imagesSnapshot =
-          await imagescollection
-              .where('placeId', isEqualTo: placeId)
-              .limit(1)
-              .get();
+      QuerySnapshot imagesSnapshot = await imagescollection
+          .where('placeId', isEqualTo: placeId)
+          .limit(1)
+          .get();
 
       String? imageUrl;
       if (imagesSnapshot.docs.isNotEmpty) {
         imageUrl = imagesSnapshot.docs.first['imageUrl'];
       }
-
-      // Step 3: Combine into a JSON-like map
       touristplaces.add({
         'title': title,
         'image': imageUrl ?? '',
-        'city': city, // Use empty string if no image found
+        'city': city,
       });
     }
   } catch (e) {}
@@ -485,24 +423,20 @@ Future<List<String>> getimages(name) async {
 Future<List<Map<String, String>>> getlocationoftourismdetails() async {
   final List<Map<String, String>> touristplaces = [];
   try {
-    QuerySnapshot popularplaces =
-        await touristcollection
-            .where(
-              'significance',
-              whereIn: ["Nature", "Beach", "Wildlife", "Historical"],
-            )
-            .get();
+    QuerySnapshot popularplaces = await touristcollection
+        .where(
+          'significance',
+          whereIn: ["Nature", "Beach", "Wildlife", "Historical"],
+        )
+        .get();
     for (var placeDoc in popularplaces.docs) {
       String title = placeDoc['name'];
       String longitude = placeDoc['longitude'];
       String latitude = placeDoc['latitude'];
-      // Step 2: Fetch only one image for this place
-
-      // Step 3: Combine into a JSON-like map
       touristplaces.add({
         'title': title,
         'longitude': longitude,
-        'latitude': latitude, // Use empty string if no image found
+        'latitude': latitude,
       });
     }
   } catch (e) {}
@@ -517,13 +451,10 @@ Future<List<Map<String, String>>> getlocationofculturaldetails() async {
       String title = placeDoc['name'];
       String longitude = placeDoc['longitude'];
       String latitude = placeDoc['latitude'];
-      // Step 2: Fetch only one image for this place
-
-      // Step 3: Combine into a JSON-like map
       touristplaces.add({
         'title': title,
         'longitude': longitude,
-        'latitude': latitude, // Use empty string if no image found
+        'latitude': latitude,
       });
     }
   } catch (e) {}

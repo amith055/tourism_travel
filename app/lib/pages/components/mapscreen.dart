@@ -1,4 +1,4 @@
-import 'package:app/pages/ApiFunctions/apis.dart';
+import 'package:lokvista_app/pages/ApiFunctions/apis.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
@@ -103,41 +103,39 @@ class _MapScreenState extends State<MapScreen> {
         foregroundColor: Colors.white,
         backgroundColor: Colors.black,
       ),
-      body:
-          _isLoading
-              ? Center(child: CircularProgressIndicator())
-              : GoogleMap(
-                mapType: MapType.normal,
-                buildingsEnabled: true,
-                initialCameraPosition: CameraPosition(
-                  target: LatLng(20.5937, 78.9629),
-                  zoom: 5,
-                ),
-                onMapCreated: (controller) {
-                  _mapController = controller;
-                },
-                myLocationEnabled: true,
-                myLocationButtonEnabled: true,
-                markers:
-                    mapdata.map((loc) {
-                      return Marker(
-                        markerId: MarkerId(loc['title']),
-                        position: LatLng(
-                          double.parse(loc['latitude']),
-                          double.parse(loc['longitude']),
-                        ),
-                        infoWindow: InfoWindow(title: loc['name']),
-                        icon: BitmapDescriptor.defaultMarkerWithHue(
-                          BitmapDescriptor.hueRed,
-                        ),
-                        onTap: () {
-                          _showBottomSheet(
-                            loc,
-                          ); // Show the bottom sheet when the marker is tapped
-                        },
-                      );
-                    }).toSet(),
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator())
+          : GoogleMap(
+              mapType: MapType.normal,
+              buildingsEnabled: true,
+              initialCameraPosition: CameraPosition(
+                target: LatLng(20.5937, 78.9629),
+                zoom: 5,
               ),
+              onMapCreated: (controller) {
+                _mapController = controller;
+              },
+              myLocationEnabled: true,
+              myLocationButtonEnabled: true,
+              markers: mapdata.map((loc) {
+                return Marker(
+                  markerId: MarkerId(loc['title']),
+                  position: LatLng(
+                    double.parse(loc['latitude']),
+                    double.parse(loc['longitude']),
+                  ),
+                  infoWindow: InfoWindow(title: loc['name']),
+                  icon: BitmapDescriptor.defaultMarkerWithHue(
+                    BitmapDescriptor.hueRed,
+                  ),
+                  onTap: () {
+                    _showBottomSheet(
+                      loc,
+                    ); // Show the bottom sheet when the marker is tapped
+                  },
+                );
+              }).toSet(),
+            ),
     );
   }
 }

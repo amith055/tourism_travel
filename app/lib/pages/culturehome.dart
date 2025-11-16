@@ -1,11 +1,11 @@
-import 'package:app/pages/components/add_culture.dart';
-import 'package:app/pages/components/all_places.dart';
-import 'package:app/pages/components/mapscreen.dart';
+import 'package:lokvista_app/pages/components/add_culture.dart';
+import 'package:lokvista_app/pages/components/all_places.dart';
+import 'package:lokvista_app/pages/components/mapscreen.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:app/pages/ApiFunctions/functions.dart';
-import 'package:app/pages/ApiFunctions/apis.dart';
-import 'package:app/pages/components/destails.dart';
+import 'package:lokvista_app/pages/ApiFunctions/functions.dart';
+import 'package:lokvista_app/pages/ApiFunctions/apis.dart';
+import 'package:lokvista_app/pages/components/details.dart';
 import 'package:shimmer/shimmer.dart';
 
 class CultureHome extends StatefulWidget {
@@ -108,98 +108,99 @@ class _CultureHomeState extends State<CultureHome>
               children: [
                 bannerItems.isEmpty
                     ? Shimmer.fromColors(
-                      baseColor: Colors.grey[800]!,
-                      highlightColor: Colors.grey[700]!,
-                      child: Container(
-                        width: double.infinity,
-                        height: 400,
-                        color: Colors.grey[900],
-                      ),
-                    )
+                        baseColor: Colors.grey[800]!,
+                        highlightColor: Colors.grey[700]!,
+                        child: Container(
+                          width: double.infinity,
+                          height: 400,
+                          color: Colors.grey[900],
+                        ),
+                      )
                     : CarouselSlider.builder(
-                      itemCount: bannerItems.length,
-                      itemBuilder: (context, index, realIndex) {
-                        final banner = bannerItems[index];
-                        return GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder:
-                                    (_) => DetailPage(
-                                      title: banner['title']!,
-                                      imagePath: banner['image']!,
+                        itemCount: bannerItems.length,
+                        itemBuilder: (context, index, realIndex) {
+                          final banner = bannerItems[index];
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => DetailPage(
+                                    title: banner['title']!,
+                                    imagePath: banner['image']!,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Stack(
+                              children: [
+                                Image.network(
+                                  banner['image']!,
+                                  width: double.infinity,
+                                  height: 400,
+                                  fit: BoxFit.cover,
+                                ),
+                                Container(
+                                  height: 400,
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                      colors: [
+                                        Colors.transparent,
+                                        Colors.black.withOpacity(0.8),
+                                      ],
                                     ),
-                              ),
-                            );
-                          },
-                          child: Stack(
-                            children: [
-                              Image.network(
-                                banner['image']!,
-                                width: double.infinity,
-                                height: 400,
-                                fit: BoxFit.cover,
-                              ),
-                              Container(
-                                height: 400,
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topCenter,
-                                    end: Alignment.bottomCenter,
-                                    colors: [
-                                      Colors.transparent,
-                                      Colors.black.withOpacity(0.8),
+                                  ),
+                                ),
+                                Positioned(
+                                  bottom: 34,
+                                  left: 16,
+                                  child: Text(
+                                    banner['title']!,
+                                    style: TextStyle(
+                                      fontSize: 28,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                Positioned(
+                                  bottom: 15,
+                                  left: 16,
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.location_on,
+                                        color: Colors.white,
+                                        size: 16,
+                                      ),
+                                      SizedBox(width: 4),
+                                      Text(
+                                        banner['city']!,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.white,
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ),
-                              ),
-                              Positioned(
-                                bottom: 34,
-                                left: 16,
-                                child: Text(
-                                  banner['title']!,
-                                  style: TextStyle(
-                                    fontSize: 28,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                              Positioned(
-                                bottom: 15,
-                                left: 16,
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.location_on,
-                                      color: Colors.white,
-                                      size: 16,
-                                    ),
-                                    SizedBox(width: 4),
-                                    Text(
-                                      banner['city']!,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
+                              ],
+                            ),
+                          );
+                        },
+                        options: CarouselOptions(
+                          height: 400,
+                          viewportFraction: 1.0,
+                          autoPlay: true,
+                          autoPlayInterval: Duration(seconds: 4),
+                          autoPlayAnimationDuration: Duration(
+                            milliseconds: 1000,
                           ),
-                        );
-                      },
-                      options: CarouselOptions(
-                        height: 400,
-                        viewportFraction: 1.0,
-                        autoPlay: true,
-                        autoPlayInterval: Duration(seconds: 4),
-                        autoPlayAnimationDuration: Duration(milliseconds: 1000),
-                        autoPlayCurve: Curves.easeInOut,
+                          autoPlayCurve: Curves.easeInOut,
+                        ),
                       ),
-                    ),
                 // Search icon
                 Positioned(
                   top: 40,
@@ -280,11 +281,10 @@ class _CultureHomeState extends State<CultureHome>
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder:
-                                        (_) => AllPlaces(
-                                          function: Listofall[i],
-                                          title: types[i],
-                                        ),
+                                    builder: (_) => AllPlaces(
+                                      function: Listofall[i],
+                                      title: types[i],
+                                    ),
                                   ),
                                 );
                               }
@@ -297,138 +297,140 @@ class _CultureHomeState extends State<CultureHome>
                   // Horizontal Carousel
                   Listofall.isEmpty
                       ? SizedBox(
-                        height: 180,
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: 5,
-                          padding: EdgeInsets.symmetric(horizontal: 12),
-                          itemBuilder:
-                              (context, index) => Shimmer.fromColors(
-                                baseColor: Colors.grey[800]!,
-                                highlightColor: Colors.grey[700]!,
-                                child: Container(
-                                  width: 120,
-                                  height: 180,
-                                  margin: EdgeInsets.only(right: 12),
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[900],
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
+                          height: 180,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: 5,
+                            padding: EdgeInsets.symmetric(horizontal: 12),
+                            itemBuilder: (context, index) => Shimmer.fromColors(
+                              baseColor: Colors.grey[800]!,
+                              highlightColor: Colors.grey[700]!,
+                              child: Container(
+                                width: 120,
+                                height: 180,
+                                margin: EdgeInsets.only(right: 12),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[900],
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
                               ),
-                        ),
-                      )
+                            ),
+                          ),
+                        )
                       : SizedBox(
-                        height: 180,
-                        child: ListView.builder(
-                          controller: _scrollControllers[i],
-                          scrollDirection: Axis.horizontal,
-                          padding: EdgeInsets.symmetric(horizontal: 12),
-                          itemCount: Listofall[i].length,
-                          itemBuilder: (context, index) {
-                            final item = Listofall[i][index];
-                            return GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder:
-                                        (_) => DetailPage(
-                                          title: item['title']!,
-                                          imagePath: item['image']!,
+                          height: 180,
+                          child: ListView.builder(
+                            controller: _scrollControllers[i],
+                            scrollDirection: Axis.horizontal,
+                            padding: EdgeInsets.symmetric(horizontal: 12),
+                            itemCount: Listofall[i].length,
+                            itemBuilder: (context, index) {
+                              final item = Listofall[i][index];
+                              return GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => DetailPage(
+                                        title: item['title']!,
+                                        imagePath: item['image']!,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                child: Container(
+                                  margin: EdgeInsets.only(right: 12),
+                                  width: 120,
+                                  child: Stack(
+                                    children: [
+                                      imageloader(item['image']),
+                                      Container(
+                                        width: 120,
+                                        height: 180,
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                          gradient: LinearGradient(
+                                            begin: Alignment.topCenter,
+                                            end: Alignment.bottomCenter,
+                                            colors: [
+                                              Colors.transparent,
+                                              Colors.black.withValues(),
+                                            ],
+                                          ),
                                         ),
-                                  ),
-                                );
-                              },
-                              child: Container(
-                                margin: EdgeInsets.only(right: 12),
-                                width: 120,
-                                child: Stack(
-                                  children: [
-                                    imageloader(item['image']),
-                                    Container(
-                                      width: 120,
-                                      height: 180,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(8),
-                                        gradient: LinearGradient(
-                                          begin: Alignment.topCenter,
-                                          end: Alignment.bottomCenter,
-                                          colors: [
-                                            Colors.transparent,
-                                            Colors.black.withValues(),
+                                      ),
+                                      Positioned(
+                                        top: 8,
+                                        left: 8,
+                                        child: Container(
+                                          padding: EdgeInsets.symmetric(
+                                            horizontal: 6,
+                                            vertical: 2,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: Colors.black.withOpacity(
+                                              0.7,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              4,
+                                            ),
+                                          ),
+                                          child: Text(
+                                            item['date'] ?? 'N/A',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Positioned(
+                                        bottom: 28,
+                                        left: 8,
+                                        right: 8,
+                                        child: Text(
+                                          item['title'] ?? '',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14,
+                                          ),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      Positioned(
+                                        bottom: 10,
+                                        left: 8,
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              Icons.location_on,
+                                              color: Colors.white,
+                                              size: 14,
+                                            ),
+                                            SizedBox(width: 4),
+                                            Text(
+                                              item['city'] ?? '',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 12,
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
                                           ],
                                         ),
                                       ),
-                                    ),
-                                    Positioned(
-                                      top: 8,
-                                      left: 8,
-                                      child: Container(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: 6,
-                                          vertical: 2,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: Colors.black.withOpacity(0.7),
-                                          borderRadius: BorderRadius.circular(
-                                            4,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          item['date'] ?? 'N/A',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Positioned(
-                                      bottom: 28,
-                                      left: 8,
-                                      right: 8,
-                                      child: Text(
-                                        item['title'] ?? '',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14,
-                                        ),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                    Positioned(
-                                      bottom: 10,
-                                      left: 8,
-                                      child: Row(
-                                        children: [
-                                          Icon(
-                                            Icons.location_on,
-                                            color: Colors.white,
-                                            size: 14,
-                                          ),
-                                          SizedBox(width: 4),
-                                          Text(
-                                            item['city'] ?? '',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 12,
-                                            ),
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            );
-                          },
+                              );
+                            },
+                          ),
                         ),
-                      ),
                 ],
               );
             }),

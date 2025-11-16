@@ -1,4 +1,4 @@
-package com.example.app
+package com.example.lokvista_app
 
 import io.flutter.embedding.android.FlutterActivity
 

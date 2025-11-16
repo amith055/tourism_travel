@@ -1,12 +1,12 @@
 import 'dart:io';
-import 'package:app/pages/myspace/about.dart';
-import 'package:app/pages/myspace/changepass.dart';
-import 'package:app/pages/myspace/chatpage.dart';
+import 'package:lokvista_app/pages/myspace/about.dart';
+import 'package:lokvista_app/pages/myspace/changepass.dart';
+import 'package:lokvista_app/pages/myspace/chatpage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:app/pages/myspace/mycontributions.dart';
-import 'package:app/pages/myspace/myprofile.dart';
+import 'package:lokvista_app/pages/myspace/mycontributions.dart';
+import 'package:lokvista_app/pages/myspace/myprofile.dart';
 import 'ApiFunctions/functions.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -36,11 +36,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> fetchDetails() async {
     try {
-      QuerySnapshot snapshot =
-          await FirebaseFirestore.instance
-              .collection('users')
-              .where('email', isEqualTo: widget.email)
-              .get();
+      QuerySnapshot snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .where('email', isEqualTo: widget.email)
+          .get();
 
       if (snapshot.docs.isNotEmpty) {
         simpledata = snapshot.docs.first;
@@ -68,82 +67,78 @@ class _ProfileScreenState extends State<ProfileScreen> {
         title: const Text("Profile", style: TextStyle(color: Colors.white)),
         centerTitle: true,
       ),
-      body:
-          simpledata == null
-              ? const Center(child: CircularProgressIndicator())
-              : Column(
-                children: [
-                  // Profile section
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      children: [
-                        Stack(
-                          alignment: Alignment.bottomRight,
-                          children: [
-                            CircleAvatar(
-                              radius: 55,
-                              backgroundColor: Colors.grey[800],
-                              backgroundImage:
-                                  _profileImage != null
-                                      ? FileImage(_profileImage!)
-                                      : (_profileImageUrl != null &&
-                                          _profileImageUrl!.isNotEmpty)
-                                      ? NetworkImage(_profileImageUrl!)
-                                      : null,
-                              child:
-                                  (_profileImage == null &&
-                                          (_profileImageUrl == null ||
-                                              _profileImageUrl!.isEmpty))
-                                      ? const Icon(
-                                        Icons.person,
-                                        size: 55,
-                                        color: Colors.white,
-                                      )
-                                      : null,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          "$fname $lname",
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+      body: simpledata == null
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
+              children: [
+                // Profile section
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      Stack(
+                        alignment: Alignment.bottomRight,
+                        children: [
+                          CircleAvatar(
+                            radius: 55,
+                            backgroundColor: Colors.grey[800],
+                            backgroundImage: _profileImage != null
+                                ? FileImage(_profileImage!)
+                                : (_profileImageUrl != null &&
+                                      _profileImageUrl!.isNotEmpty)
+                                ? NetworkImage(_profileImageUrl!)
+                                : null,
+                            child:
+                                (_profileImage == null &&
+                                    (_profileImageUrl == null ||
+                                        _profileImageUrl!.isEmpty))
+                                ? const Icon(
+                                    Icons.person,
+                                    size: 55,
+                                    color: Colors.white,
+                                  )
+                                : null,
                           ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        "$fname $lname",
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
                         ),
-                        Text(
-                          widget.email,
-                          style: const TextStyle(
-                            fontSize: 15,
-                            color: Colors.white70,
-                          ),
+                      ),
+                      Text(
+                        widget.email,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          color: Colors.white70,
                         ),
-                        const SizedBox(height: 8),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: 8),
+                    ],
                   ),
+                ),
 
-                  const Divider(color: Colors.white24),
+                const Divider(color: Colors.white24),
 
-                  // Menu section
-                  Expanded(
-                    child: ListView(
-                      children: [
-                        simpledata['is_contributor']
-                            ? buildListTile("My Contributions", Icons.star, () {
+                // Menu section
+                Expanded(
+                  child: ListView(
+                    children: [
+                      simpledata['is_contributor']
+                          ? buildListTile("My Contributions", Icons.star, () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder:
-                                      (context) => MyContributionPage(
-                                        email: widget.email,
-                                      ),
+                                  builder: (context) =>
+                                      MyContributionPage(email: widget.email),
                                 ),
                               );
                             })
-                            : buildListTile(
+                          : buildListTile(
                               "Become a Contributor",
                               Icons.star,
                               () {
@@ -155,60 +150,57 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               },
                             ),
 
-                        buildListTile("Edit Profile", Icons.edit, () async {
-                          // Example inside ProfileScreen
-                          final shouldReload = await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder:
-                                  (context) =>
-                                      MyProfilePage(email: widget.email),
-                            ),
-                          );
+                      buildListTile("Edit Profile", Icons.edit, () async {
+                        // Example inside ProfileScreen
+                        final shouldReload = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                MyProfilePage(email: widget.email),
+                          ),
+                        );
 
-                          // ✅ If user saved changes, reload data
-                          if (shouldReload == true) {
-                            fetchDetails(); // or setState(() => load data again)
-                          }
-                        }),
-                        buildListTile("My Trips", Icons.card_travel, () {}),
-                        buildListTile("Favorites", Icons.favorite, () {}),
-                        buildListTile("Change Password", Icons.lock, () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ChangePasswordPage(),
-                            ),
-                          );
-                        }),
-                        buildListTile("Settings", Icons.settings, () {}),
-                        buildListTile("About", Icons.info, () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => AboutPage(),
-                            ),
-                          );
-                        }),
-                        buildListTile("AI Assistant", Icons.chat, () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => Ai_assistant(),
-                            ),
-                          );
-                        }),
-                        buildListTile(
-                          "Logout",
-                          Icons.logout,
-                          widget.onLogout,
-                          color: Colors.redAccent,
-                        ),
-                      ],
-                    ),
+                        // ✅ If user saved changes, reload data
+                        if (shouldReload == true) {
+                          fetchDetails(); // or setState(() => load data again)
+                        }
+                      }),
+                      buildListTile("My Trips", Icons.card_travel, () {}),
+                      buildListTile("Favorites", Icons.favorite, () {}),
+                      buildListTile("Change Password", Icons.lock, () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ChangePasswordPage(),
+                          ),
+                        );
+                      }),
+                      buildListTile("Settings", Icons.settings, () {}),
+                      buildListTile("About", Icons.info, () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => AboutPage()),
+                        );
+                      }),
+                      buildListTile("AI Assistant", Icons.chat, () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => Ai_assistant(),
+                          ),
+                        );
+                      }),
+                      buildListTile(
+                        "Logout",
+                        Icons.logout,
+                        widget.onLogout,
+                        color: Colors.redAccent,
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
+            ),
     );
   }
 
@@ -385,12 +377,12 @@ Thank you for contributing to LokVisit and helping promote culture and tourism r
                       ),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              isChecked
-                                  ? const Color(0xFF00E676)
-                                  : const Color(0xFF2F2F2F),
-                          foregroundColor:
-                              isChecked ? Colors.black : Colors.white54,
+                          backgroundColor: isChecked
+                              ? const Color(0xFF00E676)
+                              : const Color(0xFF2F2F2F),
+                          foregroundColor: isChecked
+                              ? Colors.black
+                              : Colors.white54,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
@@ -399,17 +391,16 @@ Thank you for contributing to LokVisit and helping promote culture and tourism r
                             vertical: 12,
                           ),
                         ),
-                        onPressed:
-                            isChecked
-                                ? () async {
-                                  await updateContributorStatus(
-                                    context,
-                                    simpledata['email'],
-                                  );
-                                  Navigator.of(context).pop(true);
-                                  onRefresh();
-                                }
-                                : null,
+                        onPressed: isChecked
+                            ? () async {
+                                await updateContributorStatus(
+                                  context,
+                                  simpledata['email'],
+                                );
+                                Navigator.of(context).pop(true);
+                                onRefresh();
+                              }
+                            : null,
                         child: const Text(
                           "Become Contributor",
                           style: TextStyle(fontWeight: FontWeight.w600),

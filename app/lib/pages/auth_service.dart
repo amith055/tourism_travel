@@ -25,6 +25,7 @@ class AuthService {
         'email': email,
         'createdAt': FieldValue.serverTimestamp(),
         'emailVerified': false,
+        'is_contributor': false,
       });
 
       // Send verification email

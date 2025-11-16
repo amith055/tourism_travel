@@ -44,7 +44,7 @@ Widget imageloader(imageurl) {
       width: 120,
       height: 180,
       fit: BoxFit.cover,
-      cacheWidth: 240, // half of the logical pixel width (double of 120)
+      cacheWidth: 240,
       cacheHeight: 360,
       loadingBuilder: (context, child, loadingProgress) {
         if (loadingProgress == null) return child;
@@ -60,22 +60,15 @@ Widget imageloader(imageurl) {
 
 Future<void> updateContributorStatus(context, String email) async {
   try {
-    // Reference to Firestore
     final FirebaseFirestore firestore = FirebaseFirestore.instance;
-
-    // Query for the user with the given email
-    final QuerySnapshot userSnapshot =
-        await firestore
-            .collection('users')
-            .where('email', isEqualTo: email)
-            .limit(1)
-            .get();
+    final QuerySnapshot userSnapshot = await firestore
+        .collection('users')
+        .where('email', isEqualTo: email)
+        .limit(1)
+        .get();
 
     if (userSnapshot.docs.isNotEmpty) {
-      // Get the document ID
       final String docId = userSnapshot.docs.first.id;
-
-      // Update the fields
       await firestore.collection('users').doc(docId).update({
         'is_contributor': true,
         'credits': 0,

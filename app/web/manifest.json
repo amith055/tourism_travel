@@ -1,6 +1,6 @@
 {
-    "name": "app",
-    "short_name": "app",
+    "name": "lokvista_app",
+    "short_name": "lokvista_app",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

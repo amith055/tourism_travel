@@ -32,12 +32,11 @@ class _MyProfilePageState extends State<MyProfilePage> {
 
   Future<void> fetchUserData() async {
     try {
-      final snapshot =
-          await FirebaseFirestore.instance
-              .collection('users')
-              .where('email', isEqualTo: widget.email)
-              .limit(1)
-              .get();
+      final snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .where('email', isEqualTo: widget.email)
+          .limit(1)
+          .get();
 
       if (snapshot.docs.isNotEmpty) {
         final userData = snapshot.docs.first.data();
@@ -82,12 +81,11 @@ class _MyProfilePageState extends State<MyProfilePage> {
       final uploadTask = await storageRef.putFile(_pickedImage!);
       final downloadUrl = await uploadTask.ref.getDownloadURL();
 
-      final userQuery =
-          await FirebaseFirestore.instance
-              .collection('users')
-              .where('email', isEqualTo: widget.email)
-              .limit(1)
-              .get();
+      final userQuery = await FirebaseFirestore.instance
+          .collection('users')
+          .where('email', isEqualTo: widget.email)
+          .limit(1)
+          .get();
 
       if (userQuery.docs.isNotEmpty) {
         final docId = userQuery.docs.first.id;
@@ -116,12 +114,11 @@ class _MyProfilePageState extends State<MyProfilePage> {
     setState(() => isSaving = true);
 
     try {
-      final userQuery =
-          await FirebaseFirestore.instance
-              .collection('users')
-              .where('email', isEqualTo: widget.email)
-              .limit(1)
-              .get();
+      final userQuery = await FirebaseFirestore.instance
+          .collection('users')
+          .where('email', isEqualTo: widget.email)
+          .limit(1)
+          .get();
 
       if (userQuery.docs.isNotEmpty) {
         final docId = userQuery.docs.first.id;
@@ -180,114 +177,109 @@ class _MyProfilePageState extends State<MyProfilePage> {
         backgroundColor: Colors.black,
         elevation: 0,
       ),
-      body:
-          isLoading
-              ? const Center(
-                child: CircularProgressIndicator(color: Colors.white),
-              )
-              : SingleChildScrollView(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    // Profile Image
-                    Center(
-                      child: Stack(
-                        alignment: Alignment.bottomRight,
-                        children: [
-                          CircleAvatar(
-                            radius: 60,
-                            backgroundColor: Colors.grey[800],
-                            backgroundImage:
-                                _pickedImage != null
-                                    ? FileImage(_pickedImage!)
-                                    : (profileImageUrl != null &&
-                                        profileImageUrl!.isNotEmpty)
-                                    ? NetworkImage(profileImageUrl!)
-                                    : null,
-                            child:
-                                (_pickedImage == null &&
-                                        (profileImageUrl == null ||
-                                            profileImageUrl!.isEmpty))
-                                    ? const Icon(
-                                      Icons.person,
-                                      size: 60,
-                                      color: Colors.white,
-                                    )
-                                    : null,
-                          ),
-                          Positioned(
-                            bottom: 0,
-                            right: 4,
-                            child: InkWell(
-                              onTap: _pickImage,
-                              child: const CircleAvatar(
-                                radius: 20,
-                                backgroundColor: Colors.blueAccent,
-                                child: Icon(Icons.edit, color: Colors.white),
-                              ),
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator(color: Colors.white))
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // Profile Image
+                  Center(
+                    child: Stack(
+                      alignment: Alignment.bottomRight,
+                      children: [
+                        CircleAvatar(
+                          radius: 60,
+                          backgroundColor: Colors.grey[800],
+                          backgroundImage: _pickedImage != null
+                              ? FileImage(_pickedImage!)
+                              : (profileImageUrl != null &&
+                                    profileImageUrl!.isNotEmpty)
+                              ? NetworkImage(profileImageUrl!)
+                              : null,
+                          child:
+                              (_pickedImage == null &&
+                                  (profileImageUrl == null ||
+                                      profileImageUrl!.isEmpty))
+                              ? const Icon(
+                                  Icons.person,
+                                  size: 60,
+                                  color: Colors.white,
+                                )
+                              : null,
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 4,
+                          child: InkWell(
+                            onTap: _pickImage,
+                            child: const CircleAvatar(
+                              radius: 20,
+                              backgroundColor: Colors.blueAccent,
+                              child: Icon(Icons.edit, color: Colors.white),
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 25),
-
-                    const Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        "Profile Information",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
                         ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 25),
+
+                  const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "Profile Information",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 20),
+                  ),
+                  const SizedBox(height: 20),
 
-                    TextField(
-                      controller: firstNameController,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: _inputDecoration("First Name"),
+                  TextField(
+                    controller: firstNameController,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: _inputDecoration("First Name"),
+                  ),
+                  const SizedBox(height: 16),
+
+                  TextField(
+                    controller: lastNameController,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: _inputDecoration("Last Name"),
+                  ),
+                  const SizedBox(height: 16),
+
+                  TextField(
+                    controller: mobileController,
+                    keyboardType: TextInputType.phone,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: _inputDecoration(
+                      "Mobile Number",
+                      suffixIcon: hasMobile
+                          ? const Icon(
+                              Icons.verified,
+                              color: Colors.greenAccent,
+                            )
+                          : const Icon(
+                              Icons.verified_outlined,
+                              color: Colors.grey,
+                            ),
                     ),
-                    const SizedBox(height: 16),
+                  ),
+                  const SizedBox(height: 30),
 
-                    TextField(
-                      controller: lastNameController,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: _inputDecoration("Last Name"),
-                    ),
-                    const SizedBox(height: 16),
-
-                    TextField(
-                      controller: mobileController,
-                      keyboardType: TextInputType.phone,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: _inputDecoration(
-                        "Mobile Number",
-                        suffixIcon:
-                            hasMobile
-                                ? const Icon(
-                                  Icons.verified,
-                                  color: Colors.greenAccent,
-                                )
-                                : const Icon(
-                                  Icons.verified_outlined,
-                                  color: Colors.grey,
-                                ),
-                      ),
-                    ),
-                    const SizedBox(height: 30),
-
-                    // ✅ Save Button or Loader
-                    isSaving
-                        ? const Center(
+                  // ✅ Save Button or Loader
+                  isSaving
+                      ? const Center(
                           child: CircularProgressIndicator(
                             color: Colors.blueAccent,
                           ),
                         )
-                        : ElevatedButton(
+                      : ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blueAccent,
                             padding: const EdgeInsets.symmetric(
@@ -308,9 +300,9 @@ class _MyProfilePageState extends State<MyProfilePage> {
                             ),
                           ),
                         ),
-                  ],
-                ),
+                ],
               ),
+            ),
     );
   }
 }

@@ -1,4 +1,4 @@
-name: app
+name: lokvista_app
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -19,7 +19,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.7.2
+  sdk: ^3.9.0
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -34,23 +34,22 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
-  firebase_core: ^3.13.0
-  carousel_slider: ^5.0.0
-  cloud_firestore: ^5.6.6
+  firebase_core: ^4.2.1
+  firebase_auth: ^6.1.2
+  cloud_firestore: ^6.1.0
+  google_maps_flutter: ^2.14.0
   intl: ^0.20.2
-  google_maps_flutter: ^2.12.1
-  geolocator: ^13.0.4
-  http: ^1.3.0
-  firebase_auth: ^5.5.2
-  image_picker: ^1.1.2
   shimmer: ^3.0.0
-  geocoding: ^3.0.0
-  firebase_storage: ^12.4.10
-  flutter_dotenv: ^6.0.0
-   
+  carousel_slider: ^5.1.1
+  iconsax: ^0.0.8
+  geocoding: ^4.0.0
+  geolocator: ^14.0.2
+  image_picker: ^1.2.0
+  firebase_storage: ^13.0.4
+  video_player: ^2.10.0
+  cached_network_image: ^3.4.1
 
 dev_dependencies:
-  flutter_launcher_icons: ^0.14.4 
   flutter_test:
     sdk: flutter
 
@@ -74,16 +73,14 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/images/lokvista.jpg
-    - assets/images/lokvista1.jpg
-    - assets/images/lokvista.png
-  #   - images/a_dot_ham.jpeg
-
-flutter_launcher_icons:
-  android: "ic_launcher"
-  ios: true
-  adaptive_icon_background: "#f5e6d0"
-  image_path: assets/images/lokvista.png
+    - assets/images/Sushi.jpg
+    - assets/images/machu_picchu.jpg
+    - assets/images/padthai.jpg
+    - assets/images/cheeseburger-and-french-fries.jpg
+    - assets/images/chole bhature.jpg
+    - assets/images/vada pav.jpg
+    - assets/images/hyderabadi-biryani-recipe-chicken.jpg
+    - assets/images/Bijapur-travel-guide_vacaywork-97.jpg
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

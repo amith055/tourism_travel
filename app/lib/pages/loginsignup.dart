@@ -1,4 +1,4 @@
-import 'package:app/pages/home.dart';
+import 'package:lokvista_app/pages/homepage.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'auth_service.dart';
@@ -75,91 +75,106 @@ class _LoginScreenState extends State<LoginScreen> {
 
   // ✅ Forgot password dialog function
   void _showForgotPasswordDialog() {
-  final TextEditingController resetEmailController = TextEditingController();
+    final TextEditingController resetEmailController = TextEditingController();
 
-  showDialog(
-    context: context,
-    builder: (context) {
-      bool _sending = false;
+    showDialog(
+      context: context,
+      builder: (context) {
+        bool _sending = false;
 
-      return StatefulBuilder(
-        builder: (context, setState) {
-          return AlertDialog(
-            backgroundColor: Colors.grey[900],
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            title: const Text(
-              'Forgot Password?',
-              style: TextStyle(color: Colors.white),
-            ),
-            content: TextField(
-              controller: resetEmailController,
-              style: const TextStyle(color: Colors.white),
-              decoration: const InputDecoration(
-                labelText: 'Enter your email',
-                labelStyle: TextStyle(color: Colors.white70),
-                enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white70),
-                ),
-                focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white),
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              backgroundColor: Colors.grey[900],
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              title: const Text(
+                'Forgot Password?',
+                style: TextStyle(color: Colors.white),
+              ),
+              content: TextField(
+                controller: resetEmailController,
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
+                  labelText: 'Enter your email',
+                  labelStyle: TextStyle(color: Colors.white70),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white70),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white),
+                  ),
                 ),
               ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel', style: TextStyle(color: Colors.redAccent)),
-              ),
-              ElevatedButton(
-                onPressed: _sending
-                    ? null
-                    : () async {
-                        final email = resetEmailController.text.trim();
-                        if (email.isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Please enter your email')),
-                          );
-                          return;
-                        }
-
-                        setState(() => _sending = true);
-                        try {
-                          await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
-                          Navigator.pop(context); // close dialog
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Password reset email sent!')),
-                          );
-                        } on FirebaseAuthException catch (e) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(e.message ?? 'Error sending reset email')),
-                          );
-                        } finally {
-                          if (Navigator.canPop(context)) {
-                            setState(() => _sending = false);
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text(
+                    'Cancel',
+                    style: TextStyle(color: Colors.redAccent),
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: _sending
+                      ? null
+                      : () async {
+                          final email = resetEmailController.text.trim();
+                          if (email.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Please enter your email'),
+                              ),
+                            );
+                            return;
                           }
-                        }
-                      },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 120, 239, 241),
-                ),
-                child: _sending
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                      )
-                    : const Text('Send'),
-              ),
-            ],
-          );
-        },
-      );
-    },
-  );
-}
 
+                          setState(() => _sending = true);
+                          try {
+                            await FirebaseAuth.instance.sendPasswordResetEmail(
+                              email: email,
+                            );
+                            Navigator.pop(context); // close dialog
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Password reset email sent!'),
+                              ),
+                            );
+                          } on FirebaseAuthException catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  e.message ?? 'Error sending reset email',
+                                ),
+                              ),
+                            );
+                          } finally {
+                            if (Navigator.canPop(context)) {
+                              setState(() => _sending = false);
+                            }
+                          }
+                        },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 120, 239, 241),
+                  ),
+                  child: _sending
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Text('Send'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
 
   Future<void> _resendVerification() async {
     try {
@@ -299,7 +314,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     onPressed: _showForgotPasswordDialog,
                     child: const Text(
                       "Forgot Password?",
-                      style: TextStyle(color: Color.fromARGB(255, 125, 239, 247)),
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 125, 239, 247),
+                      ),
                     ),
                   ),
                 ),
@@ -309,8 +326,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   onPressed: isLoading ? null : _login,
                   style: ElevatedButton.styleFrom(
                     padding: EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor:
-                        const Color.fromARGB(255, 123, 238, 242),
+                    backgroundColor: const Color.fromARGB(255, 123, 238, 242),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -342,8 +358,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: RichText(
                     text: TextSpan(
                       text: 'Don\'t have an account? ',
-                      style:
-                          TextStyle(fontSize: 14, color: Colors.grey[400]),
+                      style: TextStyle(fontSize: 14, color: Colors.grey[400]),
                       children: [
                         TextSpan(
                           text: 'Sign Up',
@@ -364,7 +379,6 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
-
 
 // (Your SignupScreen remains exactly the same)
 class SignupScreen extends StatefulWidget {
@@ -419,11 +433,10 @@ class _SignupScreenState extends State<SignupScreen> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder:
-              (context) => EmailVerificationScreen(
-                message:
-                    'Verification email sent to ${emailController.text.trim()}',
-              ),
+          builder: (context) => EmailVerificationScreen(
+            message:
+                'Verification email sent to ${emailController.text.trim()}',
+          ),
         ),
       );
     } on FirebaseAuthException catch (e) {
@@ -578,24 +591,23 @@ class _SignupScreenState extends State<SignupScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child:
-                      isLoading
-                          ? SizedBox(
-                            height: 24,
-                            width: 24,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                          : Text(
-                            'Sign Up',
-                            style: TextStyle(
-                              color: const Color.fromARGB(255, 15, 15, 15),
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
+                  child: isLoading
+                      ? SizedBox(
+                          height: 24,
+                          width: 24,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
                           ),
+                        )
+                      : Text(
+                          'Sign Up',
+                          style: TextStyle(
+                            color: const Color.fromARGB(255, 15, 15, 15),
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                 ),
                 SizedBox(height: 16),
                 TextButton(
@@ -616,14 +628,10 @@ class _SignupScreenState extends State<SignupScreen> {
                             fontWeight: FontWeight.bold,
                             color: const Color.fromARGB(255, 237, 237, 238),
                           ),
-                          recognizer:
-                              TapGestureRecognizer()
-                                ..onTap = () {
-                                  Navigator.pushReplacementNamed(
-                                    context,
-                                    '/login',
-                                  );
-                                },
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              Navigator.pushReplacementNamed(context, '/login');
+                            },
                         ),
                       ],
                     ),
@@ -707,4 +715,4 @@ class _SignupScreenState extends State<SignupScreen> {
       validator: validator,
     );
   }
-} 
+}

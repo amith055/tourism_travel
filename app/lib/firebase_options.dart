@@ -27,7 +27,10 @@ class DefaultFirebaseOptions {
       case TargetPlatform.macOS:
         return macos;
       case TargetPlatform.windows:
-        return windows;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for windows - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -42,18 +45,18 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions web = FirebaseOptions(
     apiKey: 'AIzaSyB3hSakcDx0B_IT3Huw1Z_9MguKe5CbwgE',
-    appId: '1:38395896470:web:2f149adba713e7335918b7',
+    appId: '1:38395896470:web:1ed29433b46c67695918b7',
     messagingSenderId: '38395896470',
     projectId: 'fir-databse-cc52d',
     authDomain: 'fir-databse-cc52d.firebaseapp.com',
     databaseURL: 'https://fir-databse-cc52d-default-rtdb.firebaseio.com',
     storageBucket: 'fir-databse-cc52d.firebasestorage.app',
-    measurementId: 'G-85XLS19QH6',
+    measurementId: 'G-40GQC26LLR',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyATbg_htXJpnTp7b99tght3Rz4sllVQ0Xg',
-    appId: '1:38395896470:android:409602dd12522cd15918b7',
+    appId: '1:38395896470:android:82b8e20e291cb91c5918b7',
     messagingSenderId: '38395896470',
     projectId: 'fir-databse-cc52d',
     databaseURL: 'https://fir-databse-cc52d-default-rtdb.firebaseio.com',
@@ -62,32 +65,23 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyBB91Yc5untFpZWHyO2wKnNjyviGlxtLJw',
-    appId: '1:38395896470:ios:e046ecdbb8abdd735918b7',
+    appId: '1:38395896470:ios:55227b3ff2e651eb5918b7',
     messagingSenderId: '38395896470',
     projectId: 'fir-databse-cc52d',
     databaseURL: 'https://fir-databse-cc52d-default-rtdb.firebaseio.com',
     storageBucket: 'fir-databse-cc52d.firebasestorage.app',
-    iosBundleId: 'com.example.app',
+    androidClientId: '38395896470-dsffrm2sihdg5r0r1uj3c0p463qaingc.apps.googleusercontent.com',
+    iosBundleId: 'com.example.lokvistaApp',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyBB91Yc5untFpZWHyO2wKnNjyviGlxtLJw',
-    appId: '1:38395896470:ios:e046ecdbb8abdd735918b7',
+    appId: '1:38395896470:ios:55227b3ff2e651eb5918b7',
     messagingSenderId: '38395896470',
     projectId: 'fir-databse-cc52d',
     databaseURL: 'https://fir-databse-cc52d-default-rtdb.firebaseio.com',
     storageBucket: 'fir-databse-cc52d.firebasestorage.app',
-    iosBundleId: 'com.example.app',
-  );
-
-  static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyB3hSakcDx0B_IT3Huw1Z_9MguKe5CbwgE',
-    appId: '1:38395896470:web:e4de535d0db7835a5918b7',
-    messagingSenderId: '38395896470',
-    projectId: 'fir-databse-cc52d',
-    authDomain: 'fir-databse-cc52d.firebaseapp.com',
-    databaseURL: 'https://fir-databse-cc52d-default-rtdb.firebaseio.com',
-    storageBucket: 'fir-databse-cc52d.firebasestorage.app',
-    measurementId: 'G-T2VEV79KHC',
+    androidClientId: '38395896470-dsffrm2sihdg5r0r1uj3c0p463qaingc.apps.googleusercontent.com',
+    iosBundleId: 'com.example.lokvistaApp',
   );
 }
